@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifying your browser...</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: system-ui;
+      background: #fff;
+      flex-direction: column;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #ccc;
+      border-top-color: #4CAF50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  
+  <!--p>Checking your browser...</p-->
+  
+  <cap-widget
+    id="cap"
+    data-cap-api-endpoint="/"
+    mode="invisible">
+  </cap-widget>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@cap.js/widget"></script>
+
+  <script>
+    const widget = document.getElementById('cap');
+
+    widget.addEventListener('solve', async (event) => {
+      const token = event.detail.token;
+      console.log('CAP solved token:', token);
+
+      // Send token to your backend
+      const res = await fetch('/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+
+      const data = await res.json();
+      if (data.verified) {
+        window.location.href = '/sign-in';
+      } else {
+        alert('CAP verification failed.');
+      }
+    });
+  </script>
+</body>
+</html> 

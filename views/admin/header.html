@@ -1,0 +1,173 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<div id="adminHeader">
+  <style>
+    /* 🌿 General header styling */
+    #adminHeader {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: linear-gradient(90deg, #0c6b3f, #0a472e);
+      color: white;
+      padding: 12px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: "Inter", "Segoe UI", sans-serif;
+    }
+
+    /* 🌿 Left section (logo/title) */
+    #adminHeader h1 {
+      font-size: 1.2em;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      background: linear-gradient(to right, #d7ffdf, #b0ffc2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* 🌿 Navigation */
+    #adminNav {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    #adminNav a {
+      position: relative;
+      color: #ffffffcc;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95em;
+      transition: all 0.25s ease;
+      padding-bottom: 3px;
+    }
+
+    #adminNav a:hover {
+      color: #ffffff;
+    }
+
+    /* 🌿 Active underline animation */
+    #adminNav a.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      height: 2px;
+      width: 100%;
+      background: #b0ffc2;
+      border-radius: 1px;
+      transform-origin: center;
+    }
+
+    #adminNav a.active {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* 🧹 Delete button */
+    #clearBlacklistBtn {
+      background: #ff5b5b;
+      border: none;
+      color: white;
+      padding: 7px 14px;
+      border-radius: 5px;
+      font-weight: 600;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: background 0.25s ease, transform 0.15s ease;
+    }
+
+    #clearBlacklistBtn:hover {
+      background: #ff2e2e;
+      transform: scale(1.05);
+    }
+    
+    .logout-btn {
+  background-color: #ff5b5b;
+  border: none;
+  color: white;
+  font-size: 0.9em; /* bigger icon */
+  padding: 7px;
+ border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+
+.logout-btn:hover {
+  background-color: #ff2e2e;
+  transform: scale(1.1);
+}
+
+    /* 🌿 Responsive tweaks */
+    @media (max-width: 600px) {
+      #adminHeader {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+      #adminNav {
+        gap: 18px;
+      }
+      #clearBlacklistBtn {
+        width: 100%;
+        max-width: 200px;
+      }
+    }
+    
+    
+  </style>
+
+  <h1>Admin Panel</h1>
+
+  <nav id="adminNav">
+    <a href="/admin">Dashboard</a>
+    <a href="/admin?page=result">Results</a>
+    <a href="/admin?page=settings">Settings</a>
+    	
+    <button id="clearBlacklistBtn">🗑️ Clear Blacklist</button>
+    <!-- Logout Button -->
+<a href="/logout" class="logout-btn">
+  <i class="fas fa-power-off"></i>
+</a>
+
+  </nav>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // 🌿 Highlight current page
+    const currentPath = window.location.pathname.split("/").pop();
+    const links = document.querySelectorAll("#adminNav a");
+
+    links.forEach(link => {
+      const linkPage = link.getAttribute("href").split("/").pop();
+      if (currentPath === linkPage || (currentPath === "" && linkPage === "admin")) {
+        link.classList.add("active");
+      }
+    });
+
+    // 🧹 DELETE blacklist request
+    async function clearList() {
+      if (!confirm("Are you sure you want to clear the blacklist? This action cannot be undone.")) return;
+
+      try {
+        const res = await fetch("/admin/blacklist", { method: "DELETE" });
+        if (res.ok) {
+          alert("✅ Blacklist cleared successfully!");
+          location.reload();
+        } else {
+          const text = await res.text();
+          alert("❌ Failed to clear blacklist: " + text);
+        }
+      } catch (err) {
+        alert("⚠️ Error connecting to server: " + err.message);
+      }
+    }
+    
+    document.getElementById("clearBlacklistBtn").addEventListener("click", clearList);
+    
+  });
+  
+</script>
+</div>

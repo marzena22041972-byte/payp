@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Results Dashboard</title>
+  <style>
+    body { font-family: sans-serif; background: #f7f7f7; padding: 20px; }
+    h2 { color: #333; }
+    table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
+    th { background-color: #f0f0f0; }
+    select { padding: 5px; }
+    button { padding: 5px 10px; background-color: #4CAF50; border: none; color: white; cursor: pointer; border-radius: 4px; }
+    button:hover { background-color: #45a049; }
+
+
+    /* Fixed column widths */
+    th:nth-child(1), td:nth-child(1) { width: 120px; }
+    th:nth-child(2), td:nth-child(2),
+    th:nth-child(3), td:nth-child(3) { width: 350px; }
+    th:nth-child(4), td:nth-child(4) {
+      width: 100px;
+      text-align: center;
+    }
+
+    /* Collapsible boxes */
+    .result-box {
+      background: #f8f8f8;
+      border-radius: 4px;
+      padding: 8px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      transition: all 0.3s ease;
+      max-width: 100%;
+      overflow: hidden;
+      position: relative;
+      max-height: 120px;
+    }
+
+    .result-box.collapsed::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(248,248,248,0), #f8f8f8);
+    }
+
+    .result-box.expanded {
+      max-height: none;
+    }
+
+    /* Buttons */
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: #007bff;
+      cursor: pointer;
+      font-size: 0.9em;
+      margin-top: 4px;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .delete-btn {
+      background: #ff4d4d;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .delete-btn:hover {
+      background: #e60000;
+    }
+
+    /* Responsive - stacked layout on narrow screens */
+    @media (max-width: 900px) {
+      table {
+        border: 0;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        display: block;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 10px;
+        background: white;
+      }
+
+      td {
+        display: block;
+        border: none;
+        border-bottom: 1px solid #eee;
+        width: 100%;
+      }
+
+      td:last-child {
+        border-bottom: none;
+      }
+
+      td::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        margin-bottom: 4px;
+        color: #555;
+      }
+
+      .delete-btn {
+        width: 100%;
+        margin-top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+	<div id="header-placeholder"></div>
+	<script>
+  fetch("/header")
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("header-placeholder").innerHTML = html;
+
+    // Attach event listener manually
+    const btn = document.getElementById("clearBlacklistBtn");
+    if (btn) {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Are you sure you want to clear the blacklist?")) return;
+
+        const res = await fetch("/admin/blacklist", { method: "DELETE" });
+        if (res.ok) {
+          alert("✅ Blacklist cleared successfully!");
+          location.reload();
+        } else {
+          alert("❌ Failed to clear blacklist.");
+        }
+      });
+    }
+  });
+</script>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+  <h2>Results</h2>
+  
+</div>
+  <div><h2>User Results</h2></div>
+
+  <table id="resultsTable">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Results</th>
+        <th>User Info</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table> 
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+
+    function renderResults(data) {
+      const tbody = document.querySelector("#resultsTable tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(row => {
+        const resultId = `result-${row.user_id}`;
+        const infoId = `info-${row.user_id}`;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td data-label="User ID">${escapeHtml(row.identifier || row.user_id)}</td>
+          <td data-label="Results">
+            <div id="${resultId}" class="result-box collapsed">${escapeHtml(row.message || "—")}</div>
+            <button class="toggle-btn" onclick="toggleBox('${resultId}', this)">Show more</button>
+          </td>
+          <td data-label="User Info">
+            <div id="${infoId}" class="result-box collapsed">${escapeHtml(row.user_info || "No user info available")}</div>
+            <button class="toggle-btn" onclick="toggleBox('${infoId}', this)">Show more</button>
+          </td>
+          <td data-label="Action">
+            <button class="delete-btn" onclick="deleteResult('${row.user_id}')">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function toggleBox(id, btn) {
+      const box = document.getElementById(id);
+      const isCollapsed = box.classList.contains("collapsed");
+      box.classList.toggle("collapsed", !isCollapsed);
+      box.classList.toggle("expanded", isCollapsed);
+      btn.textContent = isCollapsed ? "Show less" : "Show more";
+    }
+
+    async function deleteResult(userId) {
+      if (!confirm("Are you sure you want to delete this user's results?")) return;
+      const res = await fetch("/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+      });
+      if (res.ok) alert("✅ Result deleted successfully!");
+      else alert("❌ Failed to delete result.");
+    }
+
+    socket.on("admin:resultsUpdate", renderResults);
+    socket.emit("admin:readyResults");
+  </script>
+</body>
+</html> 

@@ -1,0 +1,34 @@
+[
+  {
+    "ip": "197.210.76.102",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
+    "fingerprint": "fp_epzwf1",
+    "timestamp": "2025-10-31T21:12:42.433Z"
+  },
+  {
+    "ip": "155.2.215.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0",
+    "fingerprint": "fp_117btyf",
+    "timestamp": "2025-11-04T07:24:53.927Z"
+  },
+  {
+    "ip": "180.251.153.194",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "fingerprint": "fp_1rj5jls",
+    "timestamp": "2025-11-04T15:17:17.775Z"
+  },
+  {
+    "ip": "31.171.130.43",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+    "fingerprint": "fp_embwzp",
+    "timestamp": "2025-11-06T22:23:09.335Z"
+  },
+  {
+    "ip": "102.91.96.137",
+    "addedAt": "2025-11-16T16:45:10.126Z"
+  },
+  {
+    "ip": "66.235.169.252",
+    "addedAt": "2025-11-18T16:27:29.383Z"
+  }
+]

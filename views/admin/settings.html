@@ -1,0 +1,127 @@
+<html>
+<head>
+  <title>Admin Settings</title>
+  <style>
+    body { font-family: sans-serif; background: #f7f7f7; padding: 20px; }
+    h2 { color: #333; }
+    label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
+    input[type=text] { padding: 8px; width: 100%; max-width: 400px; border-radius: 4px; border: 1px solid #ccc; }
+    .settings-container { max-width: 500px; margin: 0 auto; padding: 20px; }
+
+    /* Toggle switch styles */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+      margin-top: 5px;
+    }
+    .switch input { display: none; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #4CAF50;
+    }
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    button.save-btn { margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; border: none; color: white; cursor: pointer; border-radius: 4px; }
+    button.save-btn:hover { background-color: #45a049; }
+  </style>
+</head>
+<body>
+	<div id="header-placeholder"></div>
+  <script>
+    fetch("/header")
+      .then(res => res.text())
+      .then(html => document.getElementById("header-placeholder").innerHTML = html);
+  </script>
+  <h2>Bot Settings</h2>
+
+  <div class="settings-container">
+    <label for="botToken">Bot Token</label>
+    <input type="text" id="botToken" placeholder="Enter Bot Token">
+
+    <label for="chatId">Chat ID</label>
+    <input type="text" id="chatId" placeholder="Enter Chat ID">
+
+    <label>Telegram Enabled</label>
+    <label class="switch">
+      <input type="checkbox" id="telegramToggle">
+      <span class="slider"></span>
+    </label>
+
+    <label>Block After Submission</label>
+    <label class="switch">
+      <input type="checkbox" id="baSubToggle">
+      <span class="slider"></span>
+    </label>
+
+    <div>
+    <button class="save-btn" id="saveSettingsBtn">Save Settings</button>
+    </div>
+  </div>
+
+  <script>
+    async function loadSettings() {
+      try {
+        const res = await fetch("/settings");
+        console.log(res);
+        const data = await res.json();
+        
+        console.log(data);  
+
+        if (data.BotToken) document.getElementById("botToken").value = data.BotToken;
+        if (data.ChatID) document.getElementById("chatId").value = data.ChatID;
+
+        document.getElementById("telegramToggle").checked = !!data.TelegramEnabled;
+        document.getElementById("baSubToggle").checked = !!data.baSUB;
+      } catch (err) {
+        console.error("Failed to load settings", err);
+      }
+    }
+
+    loadSettings();
+
+    // Save settings
+    document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
+      const botToken = document.getElementById("botToken").value.trim();
+      const chatId = document.getElementById("chatId").value.trim();
+      const telegramEnabled = document.getElementById("telegramToggle").checked;
+      const baSub = document.getElementById("baSubToggle").checked;
+
+      const res = await fetch("/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ BotToken: botToken, ChatID: chatId, TelegramEnabled: telegramEnabled, baSub: baSub })
+      });
+      
+      
+
+      if (res.ok) {
+        alert("✅ Settings saved successfully!");
+      } else {
+        alert("❌ Failed to save settings.");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #e8f5e9, #ffffff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-container {
+      background: #fff;
+      width: 360px;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .login-container:hover {
+      transform: translateY(-3px);
+    }
+
+    /* Logo */
+    .login-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 1rem;
+      border-radius: 50%;
+      background: #f1f8f3;
+      padding: 10px;
+      box-shadow: 0 0 8px rgba(67, 160, 71, 0.15);
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      border: 1.5px solid #c8e6c9;
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .login-container input:focus {
+      border-color: #43a047;
+      box-shadow: 0 0 4px rgba(67, 160, 71, 0.3);
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 0.9rem;
+      border: none;
+      background: #43a047;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .login-container button:hover {
+      background: #2e7d32;
+      transform: translateY(-1px);
+    }
+
+    .error-message {
+      color: #d32f2f;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    @media (max-width: 420px) {
+      .login-container {
+        width: 90%;
+        padding: 1.5rem;
+      }
+      .login-logo {
+        width: 80px;
+        height: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <img src="/images/admin-logo.png" alt="Admin Logo" class="login-logo" />
+
+    <form id="loginForm">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+      <div class="error-message" id="errorMsg"></div>
+    </form>
+  </div>
+
+  <script>
+    document.querySelector("#loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(e.target));
+      const errorMsg = document.getElementById("errorMsg");
+
+      try {
+        const res = await fetch("/admin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          window.location.href = "/admin";
+        } else {
+          errorMsg.textContent = data.message || "Invalid username or password";
+          errorMsg.style.display = "block";
+        }
+      } catch (err) {
+        errorMsg.textContent = "Server error. Please try again.";
+        errorMsg.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html> 
