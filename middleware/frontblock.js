@@ -274,19 +274,9 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
 router.post("/block", async (req, res) => {
   const { userId } = req.body;
 
-  try {
-    const user = await db.get(
-      "SELECT ip, userAgent FROM users WHERE id = ?",
-      [userId]
-    );
-
-    if (!user || !user.ip) {
-      return res.status(404).json({ error: "User or IP not found" });
-    }
-
-    const ip = user.ip;
-    const ua = user.userAgent || req.headers["user-agent"] || "unknown";
-
+    const ip = getReqClientIP(req);
+    const ua = req.headers['user-agent'] || 'unknown_ua';
+    
     // Update user status
     await db.run("UPDATE users SET status = 'blocked' WHERE id = ?", [userId]);
 
