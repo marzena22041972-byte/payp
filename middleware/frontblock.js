@@ -242,15 +242,15 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
     console.log('[Admin] Blacklist cleared');
     return res.json({ message: 'Blacklist cleared successfully' });
   });
-  
-  router.post("/unblock", async (req, res) => {
-  const { userId } = req.body;
 
-  
+	router.post("/unblock", async (req, res) => {
+  try {
+    const { userId } = req.body;
+
     const ip = getReqClientIP(req);
     const ua = req.headers['user-agent'] || 'unknown_ua';
-    
-	  if (!userId) {
+
+    if (!userId) {
       return res.status(404).json({ error: "User not found" });
     }
 
