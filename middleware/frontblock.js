@@ -38,7 +38,7 @@ function saveBlacklist(list) {
   } catch (e) {
     console.error('Error writing blacklist file:', e);
   }
-}
+} 
 
 // initialize (in-memory)
 let blacklist = loadBlacklist();
@@ -78,6 +78,7 @@ export function blacklistMiddleware(req, res, next) {
 }
 
 
+
 export function removeFromBlacklist(userId) {
   try {
     // Remove only the specific user's entry
@@ -109,7 +110,7 @@ export function addToBlacklist(ip, ua, userId) {
     }
 
     const entry = {
-      type: "manual_ip_ua_user",
+      type: "manual_ip_ua",
       userId,
       ip,
       userAgent: ua,
@@ -247,8 +248,8 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
     console.log('[Admin] Blacklist cleared');
     return res.json({ message: 'Blacklist cleared successfully' });
   });
-
-	router.post("/unblock", async (req, res) => {
+  
+  	router.post("/unblock", async (req, res) => {
   try {
     const { userId } = req.body;
 
