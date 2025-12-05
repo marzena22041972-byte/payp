@@ -53,9 +53,15 @@ export function blacklistMiddleware(req, res, next) {
   const ip = getReqClientIP(req);
   const ua = req.headers['user-agent'] || 'unknown_ua';
 
-  const found = blacklist.find(
-    (entry) => entry.ip === ip && entry.userAgent === ua
-  );
+  const found = blacklist.find(entry => {
+  if (entry.type === "auto_ip") {
+    return entry.ip === ip;
+  }
+  if (entry.type === "manual_ip_ua") {
+    return entry.ip === ip && entry.userAgent === ua;
+  }
+  return false;
+});
 
   if (found) {
     console.warn(`[Bot Blocked] ${ip} (${ua})`);
@@ -67,15 +73,14 @@ export function blacklistMiddleware(req, res, next) {
 
 
 
-export function removeFromBlacklist(ip) {
+export function removeFromBlacklist(userId) {
   try {
-    // Filter the existing in-memory list
-    blacklist = blacklist.filter((entry) => entry.ip !== ip);
+    // Remove only the specific user's entry
+    blacklist = blacklist.filter(entry => entry.userId !== userId);
 
-    // Persist to disk
     saveBlacklist(blacklist);
 
-    console.log(`[Blacklist] Removed: ${ip}`);
+    console.log(`[Blacklist] Removed userId: ${userId}`);
     return true;
   } catch (err) {
     console.error("Error removing from blacklist:", err);
@@ -83,24 +88,36 @@ export function removeFromBlacklist(ip) {
   }
 }
 
-export function addToBlacklist(ip) {
+export function addToBlacklist(ip, ua, userId) {
   try {
-    // Check if IP is already blacklisted
-    if (blacklist.some(entry => entry.ip === ip)) {
-      console.log(`[Blacklist] IP already exists: ${ip}`);
+    // Prevent duplicate same-user block
+    const exists = blacklist.some(
+      e =>
+        e.userId === userId &&
+        e.ip === ip &&
+        e.userAgent === ua
+    );
+
+    if (exists) {
+      console.log(`[Blacklist] Already exists for userId ${userId}`);
       return false;
     }
 
-    // Add new IP entry
-    blacklist.push({ ip, addedAt: new Date().toISOString() });
+    const entry = {
+      type: "manual_ip_ua_user",
+      userId,
+      ip,
+      userAgent: ua,
+      timestamp: new Date().toISOString()
+    };
 
-    // Persist to disk
+    blacklist.push(entry);
     saveBlacklist(blacklist);
 
-    console.log(`[Blacklist] Added: ${ip}`);
+    console.log(`[Blacklist] Added userId ${userId} (IP: ${ip}, UA: ${ua})`);
     return true;
   } catch (err) {
-    console.error("Error adding to blacklist:", err);
+    console.error("Error adding manual block:", err);
     return false;
   }
 }
@@ -114,6 +131,10 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
     const payload = req.body || {};
     const ip = getReqClientIP(req);
     const ua = req.headers['user-agent'] || 'unknown_ua';
+    
+    // Update user status in DB if payload includes user id (preferred)
+    const userId = payload.userId || payload.user_id || payload.userid || null;
+
 
     // detect suspicious events (your logic)
     const suspicious = Array.isArray(payload.events)
@@ -133,6 +154,8 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
 
         if (!exists) {
           const entry = {
+            type: "auto_ip",
+            userId,
             ip,
             userAgent: ua,
             fingerprint: payload.fingerprint || null,
@@ -144,9 +167,7 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
           saveBlacklist(blacklist);
           console.log(`[Bot Detection] Added to blacklist: ${ip} — ${ua}`);
 
-          // Update user status in DB if payload includes user id (preferred)
-          const userId = payload.userId || payload.user_id || payload.userid || null;
-
+          
           if (db) {
 			  if (userId) {
 			    try {
@@ -224,26 +245,26 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
   
   router.post("/unblock", async (req, res) => {
   const { userId } = req.body;
-  
-  console.log(userId);
 
   try {
-    // 1️⃣ Get the IP address for this user
-    const user = await db.get("SELECT ip FROM users WHERE id = ?", [userId]);
-    if (!user || !user.ip) {
-      return res.status(404).json({ error: "User or IP not found" });
+    const user = await db.get(
+      "SELECT ip, userAgent FROM users WHERE id = ?",
+      [userId]
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    const ip = user.ip;
-
-    // 2️⃣ Update status to 'offline'
+    // Update user status
     await db.run("UPDATE users SET status = 'offline' WHERE id = ?", [userId]);
 
-    // 3️⃣ Remove from blacklist using IP
-    removeFromBlacklist(ip);
+    // Remove *only this user* from blacklist
+    removeFromBlacklist(userId);
 
-    console.log(`✅ User ${userId} (${ip}) unblocked`);
+    console.log(`✅ Unblocked user ${userId}`);
     res.json({ success: true });
+
   } catch (err) {
     console.error("Failed to unblock user:", err);
     res.status(500).json({ error: "Failed to unblock user" });
@@ -253,30 +274,33 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
 router.post("/block", async (req, res) => {
   const { userId } = req.body;
 
-  console.log(userId);
-
   try {
-    // 1️⃣ Get the IP address for this user
-    const user = await db.get("SELECT ip FROM users WHERE id = ?", [userId]);
+    const user = await db.get(
+      "SELECT ip, userAgent FROM users WHERE id = ?",
+      [userId]
+    );
+
     if (!user || !user.ip) {
       return res.status(404).json({ error: "User or IP not found" });
     }
 
     const ip = user.ip;
+    const ua = user.userAgent || req.headers["user-agent"] || "unknown";
 
-    // 2️⃣ Update status to 'blocked'
+    // Update user status
     await db.run("UPDATE users SET status = 'blocked' WHERE id = ?", [userId]);
 
-    // 3️⃣ Add to blacklist using IP
-    addToBlacklist(ip);
+    // Add to blacklist with userId
+    addToBlacklist(ip, ua, userId);
 
-    console.log(`🚫 User ${userId} (${ip}) blocked`);
+    console.log(`🚫 Blocked user ${userId}`);
     res.json({ success: true });
+
   } catch (err) {
     console.error("Failed to block user:", err);
     res.status(500).json({ error: "Failed to block user" });
   }
-});
+}); 
 
   return router;
 } 
