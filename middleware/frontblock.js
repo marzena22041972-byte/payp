@@ -246,13 +246,11 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
   router.post("/unblock", async (req, res) => {
   const { userId } = req.body;
 
-  try {
-    const user = await db.get(
-      "SELECT ip, userAgent FROM users WHERE id = ?",
-      [userId]
-    );
-
-    if (!user) {
+  
+    const ip = getReqClientIP(req);
+    const ua = req.headers['user-agent'] || 'unknown_ua';
+    
+	  if (!userId) {
       return res.status(404).json({ error: "User not found" });
     }
 
@@ -277,6 +275,9 @@ router.post("/block", async (req, res) => {
 
     const ip = getReqClientIP(req);
     const ua = req.headers['user-agent'] || 'unknown_ua';
+
+	   if (!userId) {     
+		   return res.status(404).json({ error: "User not found" });    }
 
     // Update user status
     await db.run("UPDATE users SET status = 'blocked' WHERE id = ?", [userId]);
