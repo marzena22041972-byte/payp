@@ -54,23 +54,28 @@ export function blacklistMiddleware(req, res, next) {
   const ua = req.headers['user-agent'] || 'unknown_ua';
 
   const found = blacklist.find(entry => {
-  if (entry.type === "auto_ip") {
-    return entry.ip === ip;
-  }
-  if (entry.type === "manual_ip_ua") {
-    return entry.ip === ip && entry.userAgent === ua;
-  }
-  return false;
-});
+    if (entry.type === "auto_ip") {
+      // match ONLY by IP
+      return entry.ip === ip;
+    }
+
+    if (entry.type === "manual_ip_ua") {
+      // match by IP OR by UA (your new rule)
+      return entry.userAgent === ua || entry.ip === ip;
+    }
+
+    return false;
+  });
+
+  console.log("found:", found);
 
   if (found) {
     console.warn(`[Bot Blocked] ${ip} (${ua})`);
-    return res.status(403).json({ error: 'Access denied: bot detected' });
+    return res.status(403).json({ error: "Access denied: bot detected" });
   }
 
   next();
 }
-
 
 
 export function removeFromBlacklist(userId) {
