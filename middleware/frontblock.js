@@ -280,6 +280,7 @@ router.post("/block", async (req, res) => {
     // Update user status
     await db.run("UPDATE users SET status = 'blocked' WHERE id = ?", [userId]);
 
+	console.log("about to add to blacklist");
     // Add to blacklist with userId
     addToBlacklist(ip, ua, userId);
 
