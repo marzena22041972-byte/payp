@@ -272,15 +272,17 @@ export function createBotRouter(db /* sqlite handle */, io /* socket.io server, 
 });
 
 router.post("/block", async (req, res) => {
-  const { userId } = req.body;
+  try {
+    const { userId } = req.body;
 
     const ip = getReqClientIP(req);
     const ua = req.headers['user-agent'] || 'unknown_ua';
-    
+
     // Update user status
     await db.run("UPDATE users SET status = 'blocked' WHERE id = ?", [userId]);
 
-	console.log("about to add to blacklist");
+    console.log("about to add to blacklist");
+
     // Add to blacklist with userId
     addToBlacklist(ip, ua, userId);
 
@@ -291,7 +293,7 @@ router.post("/block", async (req, res) => {
     console.error("Failed to block user:", err);
     res.status(500).json({ error: "Failed to block user" });
   }
-}); 
+});
 
   return router;
 } 
