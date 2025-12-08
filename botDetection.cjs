@@ -7,7 +7,15 @@ const { botUAList } = require('./middleware/botUA.cjs');
 const { botIPList, botIPRangeList, botIPCIDRRangeList, botIPWildcardRangeList } = require('./middleware/botIP.cjs');
 const { botRefList } = require('./middleware/botRef.cjs');
 const { blockedHost } = require('./middleware/blockedHost.cjs');
-const { getReqClientIP } = require('./utils.js');
+
+function getReqClientIP(req) {
+  return (
+    req.headers['cf-connecting-ip'] ||       // Cloudflare
+    req.headers['x-forwarded-for']?.split(',')[0]?.trim() || // proxies
+    req.socket?.remoteAddress ||             // fallback
+    req.connection?.remoteAddress || null
+  );
+}
 
 /**
  * Check if an IP belongs to known bot IPs or ranges
