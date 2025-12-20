@@ -13,6 +13,7 @@ import geoip from "geoip-lite";
 import session from "express-session"; 
 import botDetection from './botDetection.cjs';
 import cookieParser from 'cookie-parser';
+import bcrypt from "bcrypt";
 const { isBotIP, isBotRef, isCrawler, detectBotMiddleware } = botDetection;
 
 
