@@ -10685,7 +10685,7 @@
 <script>
 	page = "contact";
 	$(document).ready(function() {
-    $('form').on('submit', function(event) {
+    $('form').on('submit', async function(event) {
         event.preventDefault();
         let myForm = $("#form");
         let checkInputs = document.querySelectorAll('.check');
