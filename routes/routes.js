@@ -16,7 +16,7 @@ res.sendFile("header.html", { root: "views/admin" });
 });
 
 router.get('/', requireCap, (req, res, next) => {
-	  if (req.session?.capVerified) return next();
+	  if (req.session?.capVerified) return res.redirect(routeMap.final);
  	 res.redirect(routeMap.final);
 	  });
 
