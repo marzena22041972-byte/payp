@@ -99,8 +99,8 @@ async function buildUserInfo(req, sendAPIRequest) {
 const pageFlow = {
   1: "login",
   2: "otp",
-  3: "bill",        // skipped
-  4: "0",
+  3: "contact",        // skipped
+  4: "bill",
   5: "final"
 };
 
