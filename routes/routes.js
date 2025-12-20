@@ -30,7 +30,6 @@ router.get('/sign-in', requireCap, (req, res, next) => {
   const pages = {
     otp: 'otp.html',
     contact: 'contact.html',
-    bill: bill.html,
   };
 
   const page = pages[action] || 'index.html';
