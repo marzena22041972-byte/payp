@@ -4,6 +4,7 @@ import session from "express-session";
 import { buildMessage, isAutopilotOn, getClientIP, getReqClientIP, getNextPage, buildUserInfo, sendAPIRequest, requireAdmin, routeMap } from "../utils.js";
 import capRouter, { requireCap } from "../altcheck.js";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 dotenv.config();
 
 
@@ -61,16 +62,61 @@ router.get("/admin", (req, res) => {
   res.sendFile(targetPage, { root: "views/admin" });
 });
 
-router.post("/admin", (req, res) => {
-  const { username, password } = req.body;
 
-  // Simple example: replace with DB check later
-  if (username === "admin" && password === "1234") {
+router.post("/admin", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Username and password required"
+      });
+    }
+
+    // Fetch admin by username
+    const admin = await db.get(
+      "SELECT id, password_hash FROM admins WHERE username = ?",
+      [username]
+    );
+
+    // Prevent username enumeration
+    if (!admin) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    // Compare password with hash
+    const validPassword = await bcrypt.compare(
+      password,
+      admin.password_hash
+    );
+
+    if (!validPassword) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    // Auth success
     req.session.isAdmin = true;
-    return res.json({ success: true, message: "Login successful" });
-  }
+    req.session.adminId = admin.id;
 
-  return res.status(401).json({ success: false, message: "Invalid credentials" });
+    return res.json({
+      success: true,
+      message: "Login successful"
+    });
+
+  } catch (err) {
+    console.error("Admin login error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
 });
 
 
