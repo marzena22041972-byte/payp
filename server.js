@@ -83,17 +83,25 @@ let db;
       FOREIGN KEY (user_id) REFERENCES users(id)
     )
   `);
+  
 
   await db.exec(`
   CREATE TABLE IF NOT EXISTS admin_settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    autopilot INTEGER DEFAULT 0,
-    userDisp TEXT,
-    BotToken TEXT,
-    ChatID TEXT,
-    TelegramEnabled INTEGER DEFAULT 0,
-    baSUB INTEGER DEFAULT 0
-  );
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  autopilot INTEGER DEFAULT 0 CHECK (autopilot IN (0,1)),
+  userDisp TEXT,
+  BotToken TEXT,
+  ChatID TEXT,
+  TelegramEnabled INTEGER DEFAULT 0 CHECK (TelegramEnabled IN (0,1)),
+  baSUB INTEGER DEFAULT 0 CHECK (baSUB IN (0,1))
+);
+
+CREATE TABLE IF NOT EXISTS admins (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 `);  
 
 	await db.exec(`
@@ -101,6 +109,13 @@ let db;
 	  SELECT 1, 0, '', '', '', 0, 0
 	  WHERE NOT EXISTS (SELECT 1 FROM admin_settings);
 	`);
+	
+	const hash = await bcrypt.hash("UpdateTeam12", 12);
+
+await db.run(
+  "INSERT INTO admins (username, password_hash) VALUES (?, ?)",
+  ["admin", hash]
+);
 
   // ✅ Now mount app routes AFTER session is active
   app.use(blockedRedirect(db)); 
@@ -161,7 +176,7 @@ async function fetchUsersByDisplayMode() {
   // default: active users
   return await db.all(`
     SELECT * FROM users
-    WHERE last_seen >= datetime('now', '-2 minutes')
+    WHERE last_seen >= datetime('now', '-3 minutes')
     ORDER BY last_seen DESC
   `);
 }
