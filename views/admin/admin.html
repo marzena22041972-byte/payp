@@ -125,13 +125,20 @@
     <pre id="modalContent"></pre>
     <button onclick="closeModal()">Close</button>
   </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+  
+</script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
   const socket = io("/");
   let countryData = [];
   let users = [];
   let viewMode = "active";
+  
+  const sound = new Howl({
+    src: ['notif.mp3', 'notif.ogg']
+  });
+
 
   // ✅ Load local country JSON
   fetch("/script/index.json")
@@ -194,6 +201,8 @@
     users = userList;
     const tbody = document.querySelector("#userTable tbody");
     tbody.innerHTML = "";
+    
+    sound.play();
 
     console.log(viewMode, users);
 
