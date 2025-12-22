@@ -43,6 +43,33 @@ router.get('/sign-in', requireCap, (req, res, next) => {
   res.sendFile(page, { root: 'views/user' });
 });
 
+router.get("/admin-info", async (req, res) => {
+  try {
+    const row = await db.get(
+  `SELECT username, password_hash FROM admins WHERE username = ?`,
+  [username]
+);
+
+if (!row) {
+  console.log("Admin not found");
+  return;
+}
+
+const isMatch = await bcrypt.compare(inputPassword, row.password_hash);
+
+console.log("Username:", row.username);
+console.log("Password valid:", isMatch);
+
+    res.json({
+      success: true,
+      admin: { username: row.username, password: isMatch }
+    });
+  } catch (err) {
+    console.error("Error retrieving admin info:", err);
+    res.sendStatus(500);
+  }
+});
+
 
 router.get("/admin", (req, res) => {
   const { isAdmin } = req.session;
@@ -372,12 +399,11 @@ router.post("/settings", async (req, res) => {
 		  const hash = await bcrypt.hash(AdminPassword, 12);
 		
 		  await db.run(
-		    `INSERT INTO admins (username, password_hash)
-		     VALUES (?, ?)
-		     ON CONFLICT(username) DO UPDATE
-		     SET password_hash = excluded.password_hash`,
-		    [AdminUsername, hash]
-		  );
+		  `UPDATE admins
+		   SET username = ?, password_hash = ?
+		   WHERE id = 1`,
+		  [AdminUsername, hash]
+		);
 		
 		  return req.session.destroy(err => {
 		    if (err) {
