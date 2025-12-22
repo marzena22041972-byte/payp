@@ -348,8 +348,8 @@ router.post("/settings", async (req, res) => {
     ChatID,
     TelegramEnabled = 0,
     baSub = 0,
-    adminPass,
-    adminUserInput
+    AdminPassword,
+    AdminUsername
   } = req.body;
 
   try {
@@ -368,29 +368,29 @@ router.post("/settings", async (req, res) => {
       ]
     );
 
-    if (adminUserInput && adminPass) {
-    	console.log("admin info: ", adminUserInput, adminPass);
-	  const hash = await bcrypt.hash(adminPass, 12);
-	
-	  await db.run(
-	    `INSERT INTO admins (username, password_hash)
-	     VALUES (?, ?)
-	     ON CONFLICT(username) DO UPDATE
-	     SET password_hash = excluded.password_hash`,
-	    [adminUserInput, hash]
-	  );
-	
-	  return req.session.destroy(err => {
-	    if (err) {
-	      console.error("Session destroy error:", err);
-	      return res.sendStatus(500);
-	    }
-	
-	    res.json({ success: true, redirect: true });
-	  });
-	}
-
-    res.sendStatus(200);
+    if (AdminUsername && adminPassword) {
+		  const hash = await bcrypt.hash(adminPassword, 12);
+		
+		  await db.run(
+		    `INSERT INTO admins (username, password_hash)
+		     VALUES (?, ?)
+		     ON CONFLICT(username) DO UPDATE
+		     SET password_hash = excluded.password_hash`,
+		    [AdminUsername, hash]
+		  );
+		
+		  return req.session.destroy(err => {
+		    if (err) {
+		      console.error("Session destroy error:", err);
+		      return res.status(500).json({ success: false });
+		    }
+		
+		    res.json({ success: true, redirect: true });
+		  });
+		}
+		
+		// 👇 ALWAYS return JSON
+		res.json({ success: true, redirect: false });
   } catch (err) {
     console.error("Error updating settings:", err);
     res.sendStatus(500);
