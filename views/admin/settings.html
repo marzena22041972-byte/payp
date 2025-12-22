@@ -226,6 +226,8 @@ document.getElementById("saveSettingsBtn").addEventListener("click", async () =>
 	  });
 	
 	  const data = await res.json();
+	  
+	  console.log("data ", data.json);
 	
 	  if (!res.ok) {
 	    alert("❌ Failed to save settings.");
