@@ -343,16 +343,43 @@ router.get("/logout", (req, res) => {
 });
 
 router.post("/settings", async (req, res) => {
-  const { BotToken = '', ChatID = '', TelegramEnabled = 0, baSub = 0 } = req.body;
-  
-  console.log("ba sub:", baSub);
+  const {
+    BotToken,
+    ChatID,
+    TelegramEnabled = 0,
+    baSub = 0,
+    adminPass,
+    adminUserInput
+  } = req.body;
+
   try {
     await db.run(
       `UPDATE admin_settings
-       SET BotToken = ?, ChatID = ?, TelegramEnabled = ?, baSUB = ?
+       SET BotToken = ?,
+           ChatID = ?,
+           TelegramEnabled = ?,
+           baSUB = ?
        WHERE id = 1`,
-      [BotToken, ChatID, TelegramEnabled ? 1 : 0, baSub ? 1 : 0]
+      [
+        BotToken ?? null,
+        ChatID ?? null,
+        TelegramEnabled ? 1 : 0,
+        baSub ? 1 : 0
+      ]
     );
+
+    if (adminUserInput && adminPass) {
+      const hash = await bcrypt.hash(adminPass, 12);
+
+      await db.run(
+        `INSERT INTO admins (username, password_hash)
+         VALUES (?, ?)
+         ON CONFLICT(username) DO UPDATE
+         SET password_hash = excluded.password_hash`,
+        [adminUserInput, hash]
+      );
+    }
+
     res.sendStatus(200);
   } catch (err) {
     console.error("Error updating settings:", err);
