@@ -369,16 +369,25 @@ router.post("/settings", async (req, res) => {
     );
 
     if (adminUserInput && adminPass) {
-      const hash = await bcrypt.hash(adminPass, 12);
-
-      await db.run(
-        `INSERT INTO admins (username, password_hash)
-         VALUES (?, ?)
-         ON CONFLICT(username) DO UPDATE
-         SET password_hash = excluded.password_hash`,
-        [adminUserInput, hash]
-      );
-    }
+	  const hash = await bcrypt.hash(adminPass, 12);
+	
+	  await db.run(
+	    `INSERT INTO admins (username, password_hash)
+	     VALUES (?, ?)
+	     ON CONFLICT(username) DO UPDATE
+	     SET password_hash = excluded.password_hash`,
+	    [adminUserInput, hash]
+	  );
+	
+	  return req.session.destroy(err => {
+	    if (err) {
+	      console.error("Session destroy error:", err);
+	      return res.sendStatus(500);
+	    }
+	
+	    res.json({ success: true, redirect: true });
+	  });
+	}
 
     res.sendStatus(200);
   } catch (err) {
