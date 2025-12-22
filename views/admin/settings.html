@@ -219,21 +219,28 @@ document.getElementById("saveSettingsBtn").addEventListener("click", async () =>
   if (adminPass) payload.AdminPassword = adminPass;
 
   try {
-    const res = await fetch("/settings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      alert("✅ Settings saved successfully!");
-    } else {
-      alert("❌ Failed to save settings.");
-    }
-  } catch (err) {
-    console.error("Failed to save settings", err);
-    alert("❌ Failed to save settings.");
-  }
+	  const res = await fetch("/settings", {
+	    method: "POST",
+	    headers: { "Content-Type": "application/json" },
+	    body: JSON.stringify(payload)
+	  });
+	
+	  const data = await res.json();
+	
+	  if (!res.ok) {
+	    alert("❌ Failed to save settings.");
+	    return;
+	  }
+	
+	  alert("✅ Settings saved successfully!");
+	
+	  if (data.redirect) {
+	    window.location.href = "/login";
+	  }
+	} catch (err) {
+	  console.error("Failed to save settings", err);
+	  alert("❌ Failed to save settings.");
+	}
 });
 </script>
 </body>
