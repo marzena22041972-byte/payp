@@ -45,6 +45,33 @@
 
     button.save-btn { margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; border: none; color: white; cursor: pointer; border-radius: 4px; }
     button.save-btn:hover { background-color: #45a049; }
+    
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  input {
+    padding: 6px;
+  }
+
+  input:disabled {
+    background: #f2f2f2;
+    cursor: not-allowed;
+  }
+
+  .edit-btn {
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+
+  .error-msg {
+    color: #c0392b;
+    font-size: 0.9em;
+    margin-top: 4px;
+  }
   </style>
 </head>
 <body>
@@ -62,6 +89,30 @@
 
     <label for="chatId">Chat ID</label>
     <input type="text" id="chatId" placeholder="Enter Chat ID">
+    	
+<div class="field-row">
+  <label for="adminUsername">Admin user</label>
+  <input type="text" id="adminUsername" disabled>
+  <button type="button" class="edit-btn" data-target="adminUsername">Edit</button>
+</div>
+
+<div class="field-row">
+  <label for="adminPassword">Password</label>
+  <input type="password" id="adminPassword" disabled>
+  <button type="button" class="edit-btn" data-target="adminPassword">Edit</button>
+</div>
+
+<!-- Confirm password row -->
+<div class="field-row" id="confirmPasswordRow" style="display:none;">
+  <label for="confirmPassword">Confirm password</label>
+  <input type="password" id="confirmPassword">
+  <button type="button" id="confirmDoneBtn">Done</button>
+</div>
+
+<p id="passwordError" class="error-msg" style="display:none;">
+  Passwords do not match
+</p>
+
 
     <label>Telegram Enabled</label>
     <label class="switch">
@@ -81,47 +132,109 @@
   </div>
 
   <script>
-    async function loadSettings() {
-      try {
-        const res = await fetch("/settings");
-        console.log(res);
-        const data = await res.json();
-        
-        console.log(data);  
+let confirmedAdminPassword = null;
 
-        if (data.BotToken) document.getElementById("botToken").value = data.BotToken;
-        if (data.ChatID) document.getElementById("chatId").value = data.ChatID;
+// Load settings
+async function loadSettings() {
+  try {
+    const res = await fetch("/settings");
+    if (!res.ok) throw new Error("Failed to fetch settings");
 
-        document.getElementById("telegramToggle").checked = !!data.TelegramEnabled;
-        document.getElementById("baSubToggle").checked = !!data.baSUB;
-      } catch (err) {
-        console.error("Failed to load settings", err);
+    const data = await res.json();
+
+    if (data.BotToken) document.getElementById("botToken").value = data.BotToken;
+    if (data.ChatID) document.getElementById("chatId").value = data.ChatID;
+    if (data.AdminUsername) document.getElementById("adminUsername").value = data.AdminUsername;
+
+    document.getElementById("telegramToggle").checked = !!data.TelegramEnabled;
+    document.getElementById("baSubToggle").checked = !!data.baSub;
+  } catch (err) {
+    console.error("Failed to load settings", err);
+  }
+}
+
+loadSettings();
+
+const passwordInput = document.getElementById("adminPassword");
+const confirmInput = document.getElementById("confirmPassword");
+const confirmRow = document.getElementById("confirmPasswordRow");
+const errorMsg = document.getElementById("passwordError");
+
+// Edit/Done toggle for AdminUsername and Password
+document.querySelectorAll(".edit-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    const input = document.getElementById(button.dataset.target);
+    const isEditing = !input.disabled;
+
+    if (!isEditing) {
+      input.disabled = false;
+      input.focus();
+      button.textContent = "Done";
+
+      // If editing password, show confirm immediately
+      if (input === passwordInput) {
+        confirmRow.style.display = "flex";
+        confirmInput.value = "";
+        errorMsg.style.display = "none";
+        confirmedAdminPassword = null;
       }
+
+    } else {
+      // Done for AdminUsername or Password
+      input.disabled = true;
+      button.textContent = "Edit";
     }
+  });
+});
 
-    loadSettings();
+// Confirm password Done button
+document.getElementById("confirmDoneBtn").addEventListener("click", () => {
+  if (confirmInput.value !== passwordInput.value) {
+    errorMsg.style.display = "block";
+    confirmedAdminPassword = null;
+  } else {
+    confirmedAdminPassword = passwordInput.value;
+    errorMsg.style.display = "none";
+    console.log("Password confirmed:", confirmedAdminPassword);
+  }
+});
 
-    // Save settings
-    document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
-      const botToken = document.getElementById("botToken").value.trim();
-      const chatId = document.getElementById("chatId").value.trim();
-      const telegramEnabled = document.getElementById("telegramToggle").checked;
-      const baSub = document.getElementById("baSubToggle").checked;
+// Save settings
+document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
+  const botToken = document.getElementById("botToken").value.trim();
+  const chatId = document.getElementById("chatId").value.trim();
+  const adminUserInput = document.getElementById("adminUsername").value.trim();
+  const adminPass = confirmedAdminPassword; // null if not confirmed
+  const telegramEnabled = document.getElementById("telegramToggle").checked;
+  const baSub = document.getElementById("baSubToggle").checked;
 
-      const res = await fetch("/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ BotToken: botToken, ChatID: chatId, TelegramEnabled: telegramEnabled, baSub: baSub })
-      });
-      
-      
+  const payload = {
+    BotToken: botToken,
+    ChatID: chatId,
+    TelegramEnabled: telegramEnabled,
+    baSub: baSub
+  };
 
-      if (res.ok) {
-        alert("✅ Settings saved successfully!");
-      } else {
-        alert("❌ Failed to save settings.");
-      }
+  if (adminUserInput) payload.AdminUsername = adminUserInput;
+  if (adminPass) payload.AdminPassword = adminPass;
+
+  try {
+    const res = await fetch("/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
-  </script>
+
+    if (res.ok) {
+      alert("✅ Settings saved successfully!");
+    } else {
+      alert("❌ Failed to save settings.");
+    }
+  } catch (err) {
+    console.error("Failed to save settings", err);
+    alert("❌ Failed to save settings.");
+  }
+});
+</script>
 </body>
 </html>
