@@ -369,6 +369,7 @@ router.post("/settings", async (req, res) => {
     );
 
     if (adminUserInput && adminPass) {
+    	console.log("admin info: ", adminUserInput, adminPass);
 	  const hash = await bcrypt.hash(adminPass, 12);
 	
 	  await db.run(
