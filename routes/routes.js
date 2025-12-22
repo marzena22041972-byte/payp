@@ -366,10 +366,10 @@ router.post("/settings", async (req, res) => {
         TelegramEnabled ? 1 : 0,
         baSub ? 1 : 0
       ]
-    );
+    ); 
 
-    if (AdminUsername && adminPassword) {
-		  const hash = await bcrypt.hash(adminPassword, 12);
+    if (AdminUsername && AdminPassword) {
+		  const hash = await bcrypt.hash(AdminPassword, 12);
 		
 		  await db.run(
 		    `INSERT INTO admins (username, password_hash)
