@@ -108,6 +108,8 @@ async function loadSettings() {
 
     document.getElementById("telegramToggle").checked = !!data.TelegramEnabled;
     document.getElementById("baSubToggle").checked = !!data.baSub;
+    
+    console.log(data.pageFlow); 
 
     // Normalize backend pageFlow
     pageFlowConfig = data.pageFlow || {
