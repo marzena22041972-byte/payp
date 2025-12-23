@@ -31,6 +31,12 @@
   </style>
 </head>
 <body>
+	<div id="header-placeholder"></div>
+  <script>
+    fetch("/header")
+      .then(res => res.text())
+      .then(html => document.getElementById("header-placeholder").innerHTML = html);
+  </script>
   <h2>Settings</h2>
   <div class="settings-container">
     <label for="botToken">Bot Token</label>
@@ -236,9 +242,12 @@ document.getElementById("saveSettingsBtn").addEventListener("click", async ()=>{
     baSub: baSub,
     pageFlow: buildPageFlow()
   };
+  
 
   if(adminUser) payload.AdminUsername=adminUser;
   if(adminPass) payload.AdminPassword=adminPass;
+  
+  console.log(pageflow);
 
   try{
     const res = await fetch("/settings",{
