@@ -211,8 +211,10 @@ document.getElementById("confirmDoneBtn").addEventListener("click", ()=>{
   }
 });
 
+let flow;
+
 function buildPageFlow() {
-  const flow = {};
+   flow = {};
   let step = 1;
   for(const page of pageOrder){
     flow[step++] = pageFlowConfig[page]==="0"?"0":page;
@@ -247,7 +249,7 @@ document.getElementById("saveSettingsBtn").addEventListener("click", async ()=>{
   if(adminUser) payload.AdminUsername=adminUser;
   if(adminPass) payload.AdminPassword=adminPass;
   
-  console.log(pageflow);
+  console.log(flow);
 
   try{
     const res = await fetch("/settings",{
