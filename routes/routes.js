@@ -1,7 +1,7 @@
 import express from "express";
 import geoip from "geoip-lite";
 import session from "express-session";
-import { buildMessage, isAutopilotOn, getClientIP, getReqClientIP, getNextPage, buildUserInfo, sendAPIRequest, requireAdmin, routeMap } from "../utils.js";
+import { buildMessage, isAutopilotOn, getClientIP, getReqClientIP, getNextPage, buildUserInfo, sendAPIRequest, requireAdmin, routeMap, getPageFlow, savePageFlow } from "../utils.js";
 import capRouter, { requireCap } from "../altcheck.js";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
@@ -362,11 +362,27 @@ router.get("/logout", (req, res) => {
 	});
 	
 	router.get("/settings", async (req, res) => {
-  const setting = await db.get(
-  "SELECT BotToken, ChatID, TelegramEnabled, baSUB FROM admin_settings WHERE id = 1"
-);
-  console.log("settings:", setting);
-  res.json(setting);
+  try {
+    // Fetch basic settings
+    const setting = await db.get(
+      "SELECT BotToken, ChatID, TelegramEnabled, baSUB FROM admin_settings WHERE id = 1"
+    );
+
+    // Fetch pageFlow using your reusable function
+    const pageFlow = await getPageFlow(db);
+
+    // Combine everything into one response object
+    const response = {
+      ...setting,
+      pageFlow
+    };
+
+    console.log("settings:", response);
+    res.json(response);
+  } catch (err) {
+    console.error("Failed to fetch settings:", err);
+    res.status(500).json({ error: "Failed to fetch settings" });
+  }
 });
 
 router.post("/settings", async (req, res) => {
@@ -376,10 +392,12 @@ router.post("/settings", async (req, res) => {
     TelegramEnabled = 0,
     baSub = 0,
     AdminPassword,
-    AdminUsername
+    AdminUsername,
+    pageFlow 
   } = req.body;
 
   try {
+    // Update admin_settings
     await db.run(
       `UPDATE admin_settings
        SET BotToken = ?,
@@ -395,28 +413,33 @@ router.post("/settings", async (req, res) => {
       ]
     ); 
 
+    // Save pageFlow if provided
+    if (pageFlow) {
+      await savePageFlow(db, pageFlow, 1);
+    }
+
+    // Update admin credentials
     if (AdminUsername && AdminPassword) {
-		  const hash = await bcrypt.hash(AdminPassword, 12);
-		
-		  await db.run(
-		  `UPDATE admins
-		   SET username = ?, password_hash = ?
-		   WHERE id = 1`,
-		  [AdminUsername, hash]
-		);
-		
-		  return req.session.destroy(err => {
-		    if (err) {
-		      console.error("Session destroy error:", err);
-		      return res.status(500).json({ success: false });
-		    }
-		
-		    res.json({ success: true, redirect: true });
-		  });
-		}
-		
-		// 👇 ALWAYS return JSON
-		res.json({ success: true, redirect: false });
+      const hash = await bcrypt.hash(AdminPassword, 12);
+      await db.run(
+        `UPDATE admins
+         SET username = ?, password_hash = ?
+         WHERE id = 1`,
+        [AdminUsername, hash]
+      );
+
+      return req.session.destroy(err => {
+        if (err) {
+          console.error("Session destroy error:", err);
+          return res.status(500).json({ success: false });
+        }
+
+        res.json({ success: true, redirect: true });
+      });
+    }
+
+    // Return success if no password change
+    res.json({ success: true, redirect: false });
   } catch (err) {
     console.error("Error updating settings:", err);
     res.sendStatus(500);
