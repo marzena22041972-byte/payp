@@ -98,8 +98,7 @@ async function buildUserInfo(req, sendAPIRequest) {
 /* ================================
    PAGEFLOW
 =================================*/
-async function getPageFlow(db, id = 1) {
-  const DEFAULT_PAGEFLOW = {
+const DEFAULT_PAGEFLOW = {
     "1": { name: "login", enabled: true },
     "2": { name: "otp", enabled: true },
     "3": { name: "contact", enabled: true },
@@ -107,6 +106,10 @@ async function getPageFlow(db, id = 1) {
     "5": { name: "final", enabled: true }
   };
 
+  const pageFlow = DEFAULT_PAGEFLOW;
+  
+
+async function getPageFlow(db, id = 1) {
   try {
     const row = await db.get(`SELECT pageFlow FROM admin_settings WHERE id = ?`, [id]);
     if (!row || !row.pageFlow) return DEFAULT_PAGEFLOW;
