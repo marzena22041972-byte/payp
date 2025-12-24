@@ -140,10 +140,12 @@ async function savePageFlow(db, pageFlow, id = 1) {
     Object.entries(pageFlow).forEach(([key, value]) => {
       if (typeof value === "string") {
         normalized[key] = { page: value, enabled: value !== "0" };
-      } else if (value?.name) {
+      } else if (value?.page) {
         normalized[key] = { page: value.page, enabled: value.enabled ?? true };
       }
     });
+    
+    console.log("normalized to be saved on db", normalized);
 
     const jsonString = JSON.stringify(normalized);
     await db.run(`UPDATE admin_settings SET pageFlow = ? WHERE id = ?`, [jsonString, id]);
