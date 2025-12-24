@@ -138,6 +138,8 @@ function renderPageList() {
   list.innerHTML = "";
 
   pageOrder.forEach(page => {
+  console.log(pageOrder);
+  console.log("page:", page);
     const stepKey = Object.keys(pageFlowConfig)
       .find(k => pageFlowConfig[k].page === page);
 
