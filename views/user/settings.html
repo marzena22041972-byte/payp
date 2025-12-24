@@ -361,6 +361,8 @@ document.getElementById("saveSettingsBtn").addEventListener("click", async () =>
     baSub: document.getElementById("baSubToggle").checked,
     pageFlow: buildPageFlow()
   };
+   
+  console.log("payload", payload);
 
   const adminUser = document.getElementById("adminUsername").value.trim();
   if (adminUser) payload.AdminUsername = adminUser;
