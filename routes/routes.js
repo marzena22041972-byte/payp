@@ -417,6 +417,8 @@ router.post("/settings", async (req, res) => {
     if (pageFlow) {
       await savePageFlow(db, pageFlow, 1);
     }
+    
+    console.log("pageflow on server:", pageFlow);
 
     // Update admin credentials
     if (AdminUsername && AdminPassword) {
