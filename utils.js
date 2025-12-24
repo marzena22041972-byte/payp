@@ -187,36 +187,58 @@ function getNextPage(currentPage, req) {
   if (!currentPage) return null;
 
   const backendCurrent = resolveBackendRoute(currentPage);
-  const sortedKeys = Object.keys(pageFlow).map(Number).sort((a, b) => a - b);
-  const currentIdx = sortedKeys.findIndex(key => pageFlow[key].page === backendCurrent);
+
+  const sortedKeys = Object.keys(pageFlow)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  const currentIdx = sortedKeys.findIndex(
+    key => pageFlow[key]?.page === backendCurrent
+  );
 
   if (currentIdx === -1) return null;
 
   let nextPage = null;
+
   for (let i = currentIdx + 1; i < sortedKeys.length; i++) {
     const candidate = pageFlow[sortedKeys[i]];
-    if (candidate.enabled) {
+    if (!candidate) continue;
+
+    // 🔒 STRICT enable check (no truthy bugs)
+    const isEnabled =
+      candidate.enabled === true ||
+      candidate.enabled === 1 ||
+      candidate.enabled === "1";
+
+    if (isEnabled) {
       nextPage = candidate.page;
       break;
     }
   }
-  
-  console.log("nextpage", nextPage);
 
   if (!nextPage) return null;
 
   const frontendRoute = resolveFrontendRoute(nextPage);
 
-  if (frontendRoute.startsWith("http://") || frontendRoute.startsWith("https://")) {
+  // External redirect
+  if (
+    frontendRoute.startsWith("http://") ||
+    frontendRoute.startsWith("https://")
+  ) {
     if (req?.session) {
       req.session.cookie.maxAge = 60 * 60 * 1000;
       req.session.blocked = true;
     }
-    return frontendRoute.replace(/^\/+/, "").replace(/\/+$/, "");
+
+    return frontendRoute
+      .replace(/^\/+/, "")
+      .replace(/\/+$/, "");
   }
 
-  const normalizedFrontend = frontendRoute.replace(/\/+$/, "");
-  return normalizedFrontend.startsWith("/") ? normalizedFrontend : `/${normalizedFrontend}`;
+  const normalized = frontendRoute.replace(/\/+$/, "");
+  return normalized.startsWith("/")
+    ? normalized
+    : `/${normalized}`;
 }
 
 /* ================================
