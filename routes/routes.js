@@ -328,7 +328,7 @@ router.get("/logout", (req, res) => {
     // 🤖 STEP 9: Autopilot redirect
     // -------------------------------
     const user = await db.get("SELECT page FROM users WHERE id = ?", [userId]);
-    const nextPage = getNextPage(user?.page, req);
+    const nextPage = await getNextPage(user?.page, req);
     console.log("next page auto", nextPage);
     const autopilot = await isAutopilotOn(db);
 
