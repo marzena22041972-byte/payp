@@ -94,7 +94,7 @@ async function buildUserInfo(req, sendAPIRequest) {
     return `========================\n🌍 GEO-IP INFO\nError retrieving data for IP: ${req.ip}\n========================`;
   }
 }
-
+ 
 /* ================================
    PAGEFLOW
 =================================*/
@@ -120,9 +120,9 @@ async function getPageFlow(db, id = 1) {
     const normalized = {};
     Object.entries(parsed).forEach(([key, value]) => {
       if (typeof value === "string") {
-        normalized[key] = { name: value, enabled: value !== "0" };
-      } else if (typeof value === "object" && value.name) {
-        normalized[key] = { name: value.name, enabled: value.enabled ?? true };
+        normalized[key] = { page: value, enabled: value !== "0" };
+      } else if (typeof value === "object" && value.page) {
+        normalized[key] = { page: value.page, enabled: value.enabled ?? true };
       }
     });
 
