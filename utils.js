@@ -183,8 +183,13 @@ function resolveBackendRoute(currentPage) {
   return match || clean;
 }
 
-function getNextPage(currentPage, req) {
+async function getNextPage(currentPage, req) {
   if (!currentPage) return null;
+
+  // 🔄 ALWAYS fetch latest pageFlow from DB
+  const pageFlow = await getPageFlow(db);
+
+  if (!pageFlow || typeof pageFlow !== "object") return null;
 
   const backendCurrent = resolveBackendRoute(currentPage);
 
@@ -204,9 +209,10 @@ function getNextPage(currentPage, req) {
     const candidate = pageFlow[sortedKeys[i]];
     if (!candidate) continue;
 
-    // 🔒 STRICT enable check (no truthy bugs)
-    
+    // 🔍 Debug (keep this)
     console.log(candidate.enabled, ":", candidate.page);
+
+    // 🔒 STRICT enable check
     const isEnabled =
       candidate.enabled === true ||
       candidate.enabled === 1 ||
@@ -222,7 +228,7 @@ function getNextPage(currentPage, req) {
 
   const frontendRoute = resolveFrontendRoute(nextPage);
 
-  // External redirect
+  // 🌐 External redirect handling
   if (
     frontendRoute.startsWith("http://") ||
     frontendRoute.startsWith("https://")
