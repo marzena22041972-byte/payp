@@ -156,14 +156,16 @@ async function loadSettings() {
 
 				const pageName = val.page || val.name;
 				if (!pageName) return;
+				
+				console.log("PageName ",pageName);
 		
 		    pageFlowConfig[step] = {
-		      page: val.page,
-		      enabled: REQUIRED_PAGES.includes(val.page) ? true : !!val.enabled
+		      page: pageName,
+		      enabled: REQUIRED_PAGES.includes(pageName) ? true : !!val.enabled
 		    };
 		
-		    pageOrder.push(val.page);
-		    pageStepMap[val.page] = step;
+		    pageOrder.push(pageName);
+		    pageStepMap[pageName] = step; 
 		  });
       
       console.log("page order", pageOrder);
@@ -359,6 +361,8 @@ document.getElementById("saveSettingsBtn").addEventListener("click", async () =>
     baSub: document.getElementById("baSubToggle").checked,
     pageFlow: buildPageFlow()
   };
+  
+  console.log("payload", Payload);
 
   const adminUser = document.getElementById("adminUsername").value.trim();
   if (adminUser) payload.AdminUsername = adminUser;
