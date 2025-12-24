@@ -148,6 +148,7 @@ async function loadSettings() {
         pageStepMap[val.page] = step;
       });
       
+      console.log("page order", pageOrder);
       
 
     renderPageList();
@@ -166,6 +167,8 @@ function renderPageList() {
     console.error("❌ #pageList element not found");
     return;
   }
+  
+console.log("page order", pageOrder);
 
   list.innerHTML = "";
 
