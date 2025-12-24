@@ -125,11 +125,17 @@ async function loadSettings() {
     pageFlowConfig = {};
     pageOrder = [];
     pageStepMap = {};
+    
+    console.log("flow config", pageFlowConfig);
+    console.log("flow order", pageOrder);
+    console.log("flow config", pageStepMap);
 
     Object.keys(rawFlow)
       .sort((a, b) => Number(a) - Number(b))
       .forEach(step => {
         const val = rawFlow[step];
+        
+        console.log(val);
 
         if (!val || typeof val !== "object" || !val.page) return;
 
@@ -141,6 +147,8 @@ async function loadSettings() {
         pageOrder.push(val.page);
         pageStepMap[val.page] = step;
       });
+      
+      
 
     renderPageList();
   } catch (err) {
@@ -153,32 +161,54 @@ async function loadSettings() {
 ================================ */
 function renderPageList() {
   const list = document.getElementById("pageList");
+
+  if (!list) {
+    console.error("❌ #pageList element not found");
+    return;
+  }
+
   list.innerHTML = "";
+
+  if (!pageOrder.length) {
+    list.innerHTML = "<li>No pages configured</li>";
+    return;
+  }
 
   pageOrder.forEach(page => {
     const stepKey = pageStepMap[page];
     if (!stepKey) return;
 
-    const { enabled } = pageFlowConfig[stepKey];
+    const step = pageFlowConfig[stepKey];
     const isRequired = REQUIRED_PAGES.includes(page);
 
     const li = document.createElement("li");
     li.dataset.page = page;
     li.draggable = !isRequired;
+    li.className = isRequired ? "disabled" : "";
 
-    if (isRequired) li.classList.add("disabled");
+    const label = document.createElement("span");
+    label.textContent = page + (isRequired ? " (required)" : "");
 
-    li.innerHTML = `
-      <span>${page}${isRequired ? " (required)" : ""}</span>
-      <label class="switch">
-        <input type="checkbox"
-               data-page="${page}"
-               ${enabled ? "checked" : ""}
-               ${isRequired ? "disabled" : ""}>
-        <span class="slider"></span>
-      </label>
-    `;
+    const toggle = document.createElement("input");
+    toggle.type = "checkbox";
+    toggle.checked = !!step.enabled;
+    toggle.disabled = isRequired;
+    toggle.dataset.page = page;
 
+    toggle.onchange = () => {
+      pageFlowConfig[stepKey].enabled = true;
+      if (!isRequired) {
+        pageFlowConfig[stepKey].enabled = toggle.checked;
+      }
+    };
+
+    const switchWrap = document.createElement("label");
+    switchWrap.className = "switch";
+    switchWrap.appendChild(toggle);
+    switchWrap.appendChild(document.createElement("span")).className = "slider";
+
+    li.appendChild(label);
+    li.appendChild(switchWrap);
     list.appendChild(li);
   });
 
