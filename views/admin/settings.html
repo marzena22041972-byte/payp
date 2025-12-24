@@ -136,22 +136,24 @@ async function loadSettings() {
     console.log("flow config", pageStepMap);
 
     Object.keys(rawFlow)
-      .sort((a, b) => Number(a) - Number(b))
-      .forEach(step => {
-        const val = rawFlow[step];
-        
-        console.log(val);
-
-        if (!val || typeof val !== "object" || !val.page) return;
-
-        pageFlowConfig[step] = {
-          page: val.page,
-          enabled: REQUIRED_PAGES.includes(val.page) ? true : !!val.enabled
-        };
-
-        pageOrder.push(val.page);
-        pageStepMap[val.page] = step;
-      });
+		  .sort((a, b) => Number(a) - Number(b))
+		  .forEach(step => {
+		    const val = rawFlow[step];
+		
+		    // HARD FAIL if malformed (helps debugging)
+		    if (!val || !val.page) {
+		      console.error("Invalid pageFlow step:", step, val);
+		      return;
+		    }
+		
+		    pageFlowConfig[step] = {
+		      page: val.page,
+		      enabled: REQUIRED_PAGES.includes(val.page) ? true : !!val.enabled
+		    };
+		
+		    pageOrder.push(val.page);
+		    pageStepMap[val.page] = step;
+		  });
       
       console.log("page order", pageOrder);
       
