@@ -156,6 +156,8 @@ async function loadSettings() {
 
 				const pageName = val.page || val.name;
 				if (!pageName) return;
+				
+				console.log("PageName ",pageName);
 		
 		    pageFlowConfig[step] = {
 		      page: pageName,
