@@ -135,13 +135,13 @@ async function getPageFlow(db, id = 1) {
 
 async function savePageFlow(db, pageFlow, id = 1) {
   try {
-    // Ensure all entries have {name, enabled}
+    // Ensure all entries have {page, enabled}
     const normalized = {};
     Object.entries(pageFlow).forEach(([key, value]) => {
       if (typeof value === "string") {
-        normalized[key] = { name: value, enabled: value !== "0" };
+        normalized[key] = { page: value, enabled: value !== "0" };
       } else if (value?.name) {
-        normalized[key] = { name: value.name, enabled: value.enabled ?? true };
+        normalized[key] = { page: value.page, enabled: value.enabled ?? true };
       }
     });
 
