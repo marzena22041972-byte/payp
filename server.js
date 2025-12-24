@@ -200,7 +200,7 @@ socket.on("user:update", async (data) => {
 
           if (command === "nextpage") {
             const user = await db.get("SELECT page FROM users WHERE id = ?", [userId]);
-            link = getNextPage(user?.page);
+            link = await getNextPage(user?.page);
             console.log("link", link);
           } else if (command === "redirect") {
             link = resolveFrontendRoute("final");
