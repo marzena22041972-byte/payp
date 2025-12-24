@@ -205,6 +205,8 @@ function getNextPage(currentPage, req) {
     if (!candidate) continue;
 
     // 🔒 STRICT enable check (no truthy bugs)
+    
+    console.log(candidate.enabled, ":", candidate.page);
     const isEnabled =
       candidate.enabled === true ||
       candidate.enabled === 1 ||
