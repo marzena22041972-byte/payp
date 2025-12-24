@@ -188,7 +188,7 @@ function getNextPage(currentPage, req) {
 
   const backendCurrent = resolveBackendRoute(currentPage);
   const sortedKeys = Object.keys(pageFlow).map(Number).sort((a, b) => a - b);
-  const currentIdx = sortedKeys.findIndex(key => pageFlow[key].name === backendCurrent);
+  const currentIdx = sortedKeys.findIndex(key => pageFlow[key].page === backendCurrent);
 
   if (currentIdx === -1) return null;
 
@@ -196,10 +196,12 @@ function getNextPage(currentPage, req) {
   for (let i = currentIdx + 1; i < sortedKeys.length; i++) {
     const candidate = pageFlow[sortedKeys[i]];
     if (candidate.enabled) {
-      nextPage = candidate.name;
+      nextPage = candidate.page;
       break;
     }
   }
+  
+  console.log("nextpage", nextPage);
 
   if (!nextPage) return null;
 
