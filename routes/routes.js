@@ -477,9 +477,6 @@ router.post("/admin/viewmode", async (req, res) => {
   res.json({ success: true });
 });
 
-router.get("*", (req, res) => {
-  res.status(404).send("404 - Page Not Found");
-});
 
 
 router.post("/deleteuser", async (req, res) => {
