@@ -495,6 +495,7 @@ router.post("/deleteuser", async (req, res) => {
     console.error("⚠️ Error deleting user:", err);
     res.status(500).json({ error: "Internal server error" });
   }
+  });
 	
 router.get("*", (req, res) => {
   res.status(404).send("404 - Page Not Found");
