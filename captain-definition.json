@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 2,
+  "imageName": "node:20-alpine",
+  "containerHttpPort": 3300
+}
